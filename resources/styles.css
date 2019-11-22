@@ -3,30 +3,27 @@
 }
 
 #time {
+  fill: white;
   font-size: 110;
   font-family: Colfax-Regular;
-  text-length: 32;
   text-anchor: middle;
   x: 50%;
   y: 50%+40;
-  fill: #783c94;
 }
 
 #message{
   fill: #ab1931;
   font-size: 26;
   text-anchor: middle;
-  text-length: 32;
   x: 50%;
   y: 80%;
 }
 
 #date{
-  text-anchor: middle;
-  text-length: 32;
-  x: 50%;
+  text-anchor: start;
+  x: 5%;
   y: 100%-10;
-  font-size: 30;
+  font-size: 26;
   fill: #d1d1d1;
 }
 
@@ -40,14 +37,34 @@
   x:5%;
   y:20;
   text-anchor: start;
-  text-length: 32;
 }
 
 
 #stat2{
   font-size: 22;
   text-anchor: end;
-  text-length: 32;
   y:20;
-  x:94%
+  x:94%;
+}
+
+#nightscout-info {
+  height: 30%;
+  width: 30%;
+  x: 68%;
+  y: 73%;
+}
+
+#reading {
+  fill: #d1d1d1;
+  font-size: 60;
+  text-anchor: end;
+  x: 100%;
+}
+
+#reading-age {
+  fill: rgb(100,100,100);
+  font-size: 20;
+  text-anchor: end;
+  x: 100%;
+  y: 22%;
 }

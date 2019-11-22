@@ -3,10 +3,13 @@ import document from 'document'
 import { battery } from 'power'
 import { me as device } from 'device'
 import { vibration } from 'haptics'
+import { peerSocket } from 'messaging'
 
 import * as simpleSettings from './simple/device-settings'
 import { formatDate, getTimeStr, round, isEmpty } from '../common/utils'
 import { SETTINGS_EVENTS, DEFAULT_WARNING_THRESHOLD, LOW_BATTERY_LIMIT } from '../common/constants'
+
+const SGV_AGE_DISPLAY = 5 // minutes
 
 // Update the clock every minute
 clock.granularity = 'minutes'
@@ -24,7 +27,10 @@ const dateText = document.getElementById('date')
 const batteryStatusText = document.getElementById('stat1')
 const secondTimeText = document.getElementById('stat2')
 
-message.style.display = 'none'
+// nightscout info elements
+const sgvText = document.getElementById('reading')
+const sgvAgeText = document.getElementById('reading-age')
+
 batteryStatusText.text = 'init'
 // Update the <text> element every tick with the current time
 clock.ontick = (evt) => {
@@ -34,19 +40,19 @@ clock.ontick = (evt) => {
   updateSecondTime(now, secondtimeOffset)
   updateBattery()
   updateConnectionStatus(now)
+  requestReading()
 }
 
 function updateConnectionStatus(now){
   let minutesSinceSync = (now - device.lastSyncTime) / (60*1000)
   if (showSyncWarning && minutesSinceSync > syncWarningThreshold){
     displaySyncWarning(minutesSinceSync)
-    if (message.style.display == 'none'){
+    if (message.text == ''){
       // showing warning for first time
       warningVibrate()
     }
-    message.style.display = 'inline'
   }else{
-    message.style.display = 'none'
+    clearAlert('syncWarning')
   }
 
 }
@@ -58,7 +64,11 @@ function displaySyncWarning(minutes){
       roundTo = 10
     }
     const roundedMinutes = round(minutes, roundTo)
-    message.text = `${roundedMinutes}m since sync`
+    setAlert({
+      key: 'syncWarning',
+      msg: `${roundedMinutes}m since sync`,
+      priority: 0
+    })
   }
 }
 
@@ -82,6 +92,13 @@ function updateClock(now){
   timeText.text = getTimeStr(now)
 }
 
+function requestReading(){
+  // here we make the call to the companion to fetch data from nightscout
+  if (peerSocket.readyState == peerSocket.OPEN) {
+    peerSocket.send('getReading')
+  }
+}
+
 function warningVibrate(){
   vibration.start('nudge-max')
 }
@@ -92,7 +109,52 @@ function initSettings() {
   updateSecondTime(new Date(), 0)
   showSyncWarning = true
   updateConnectionStatus(new Date())
-  timeText.style.fill = '#783c94'
+}
+
+let messages = []
+
+function setAlert({key, msg, priority}) {
+  messages.push({ key, msg, priority })
+  messages.sort((a, b) => a.priority - b.priority)
+  message.text = messages[0].msg
+}
+
+function clearAlert(key) {
+  if (!key) messages = []
+  messages = messages.filter(e => e.key != key)
+  if (messages.length == 0) {
+    message.text = ''
+  } else {
+    message.text = messages[0].msg
+  }
+}
+
+peerSocket.onmessage = evt => {
+  // console.log(JSON.stringify(evt, null, 2))
+  const { data } = evt
+  if (data.error) {
+    setAlert({key: 'apiError', msg: data.error, priority: 0})
+    return
+  }
+
+  clearAlert('apiError')
+  if (data.reading) {
+    updateReading(data.reading, data.age)
+  }
+}
+
+function updateReading(reading, age) {
+  sgvText.text = reading
+  if (age > SGV_AGE_DISPLAY) {
+    if (age < 60 ) {
+      sgvAgeText.text = `${age}m`
+    } else {
+      sgvAgeText.text = `${Math.round(age / 60)}h`
+    }
+  } else {
+    sgvAgeText.text = ''
+  }
+  // don't forget to change the clock colour!
 }
 
 /* -------- SETTINGS -------- */
@@ -123,19 +185,8 @@ function settingsCallback(data) {
       syncWarningThreshold = Number(data[SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD].name)
       updateConnectionStatus(new Date())
     }
-
-    if (data[SETTINGS_EVENTS.PRIMARY_COLOR]) {
-      timeText.style.fill = data[SETTINGS_EVENTS.PRIMARY_COLOR]
-    }
-
-    if (data[SETTINGS_EVENTS.PRIMARY_COLOR_CUSTOM] && data[SETTINGS_EVENTS.PRIMARY_COLOR_CUSTOM].name != '') {
-      try {
-        timeText.style.fill = data[SETTINGS_EVENTS.PRIMARY_COLOR_CUSTOM].name
-      } catch(err) {
-        console.log(err)
-      }
-    }
   }
 
 }
 simpleSettings.initialize(settingsCallback)
+peerSocket.onopen = requestReading
