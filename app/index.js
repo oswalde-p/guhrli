@@ -130,7 +130,6 @@ function clearAlert(key) {
 }
 
 peerSocket.onmessage = evt => {
-  // console.log(JSON.stringify(evt, null, 2))
   const { data } = evt
   if (data.error) {
     setAlert({key: 'apiError', msg: data.error, priority: 0})
