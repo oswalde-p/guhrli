@@ -1,11 +1,11 @@
 <svg id="background" class="background">
-  <text id="stat1" class="stat" text-length="32"></text>
+  <text id="stat1" class="stat" text-length="8"></text>
 
   <svg id="top-right">
-  <text id="stat2" class="stat" text-length="32"></text>
+  <text id="stat2" class="stat" text-length="8"></text>
   </svg>
 
-  <text id="time" text-length="32"/>
+  <text id="time" text-length="8"/>
   <text id="message" text-length="32"/>
   <text id="date" text-length="32"/>
   <svg id="nightscout-info">
