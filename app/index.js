@@ -139,9 +139,9 @@ peerSocket.onmessage = evt => {
 
   if (data.reading) {
     updateReading(data.reading, data.age)
+    setAlarm(data.alarm)
   }
 
-  setAlarm(data.alarm)
 }
 
 function setAlarm(alarm) {
