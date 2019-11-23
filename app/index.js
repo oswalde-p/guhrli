@@ -135,11 +135,26 @@ peerSocket.onmessage = evt => {
     setAlert({key: 'apiError', msg: data.error, priority: 0})
     return
   }
-
   clearAlert('apiError')
+
   if (data.reading) {
     updateReading(data.reading, data.age)
   }
+
+  setAlarm(data.alarm)
+}
+
+function setAlarm(alarm) {
+  // this should be done by adding classes but I can't work out how to do that
+  timeText.style.fill = colorMap[alarm] || colorMap.default
+}
+
+const colorMap = {
+  default: '#007700',
+  URGENT_HIGH: '#800000',
+  HIGH: '#ff9900',
+  LOW: '#1ac6ff',
+  URGENT_LOW: '#0000bb'
 }
 
 function updateReading(reading, age) {
