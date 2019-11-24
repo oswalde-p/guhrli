@@ -4,7 +4,7 @@ import { peerSocket } from 'messaging'
 import * as simpleSettings from './simple/companion-settings'
 
 import { SETTINGS_EVENTS } from '../common/constants'
-import { addSlash, formatReading, isValidUrl } from './utils'
+import { addSlash, formatReading, getAlarmType, isValidUrl } from './utils'
 import { queryLastReading, queryStatus } from './nightscout'
 
 // make sure the settings component starts out with default values
@@ -45,9 +45,10 @@ function sendError(message) {
 async function intializeNightscout() {
   if (!nightscoutConfig && nightscoutConfig.url) sendError('Nightscout not configured')
   try {
-    const { settings }  = await queryStatus(nightscoutConfig.url)
-    nightscoutConfig.units = settings.units
-    nightscoutConfig.thresholds = settings.thresholds
+    const { units, alarms }  = await queryStatus(nightscoutConfig.url)
+    // I don't understand why it thinks this is bad in this case, or how to fix it
+    nightscoutConfig.units = units // eslint-disable-line require-atomic-updates
+    nightscoutConfig.alarms = alarms // eslint-disable-line require-atomic-updates
   } catch(err) {
     if (err.message.startsWith('Fetch Error')) {
       sendError('API error, Check URL')
@@ -65,7 +66,8 @@ peerSocket.onmessage = async evt =>{
       const { sgv, age } = await queryLastReading(nightscoutConfig.url)
       peerSocket.send({
         reading: formatReading(sgv, nightscoutConfig.units),
-        age
+        age,
+        alarm: getAlarmType(sgv, nightscoutConfig.alarms)
       })
     } catch (err) {
       if (err.message.startsWith('Fetch Error')) {

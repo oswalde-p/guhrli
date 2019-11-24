@@ -1,6 +1,7 @@
 import test from 'ava'
 
 import * as utils from'../companion/utils'
+import * as constants from '../common/constants'
 
 test('formatReading with no units formats 105 as "105"', t => {
   const res = utils.formatReading(105)
@@ -82,3 +83,82 @@ test('isValidUrl returns false for bad protocol "ws://fitbit.com"', t => {
   const res = utils.isValidUrl('ws://fitbit.com')
   t.is(res, false)
 })
+
+test('getAlarmType returns URGENT_HIGH for a value > rules.sgvHi', t => {
+  const alarmRules = {
+    sgvHi: { enabled: true, threshold: 260 },
+    sgvLo: { enabled: true, threshold: 55 },
+    sgvTargetBottom: { enabled: true, threshold: 80 },
+    sgvTargetTop: { enabled: true, threshold: 180 }
+  }
+  const highValue = 270
+  const res = utils.getAlarmType(highValue, alarmRules)
+  t.is(res, constants.ALARM_TYPES.URGENT_HIGH)
+})
+
+test('getAlarmType returns HIGH for a value between targetTop and ruls.sgvHi', t => {
+  const alarmRules = {
+    sgvHi: { enabled: true, threshold: 260 },
+    sgvLo: { enabled: true, threshold: 55 },
+    sgvTargetBottom: { enabled: true, threshold: 80 },
+    sgvTargetTop: { enabled: true, threshold: 180 }
+  }
+  const highValue = 200
+  const res = utils.getAlarmType(highValue, alarmRules)
+  t.is(res, constants.ALARM_TYPES.HIGH)
+})
+
+
+test('getAlarmType returns null for a value within target range', t => {
+  const alarmRules = {
+    sgvHi: { enabled: true, threshold: 260 },
+    sgvLo: { enabled: true, threshold: 55 },
+    sgvTargetBottom: { enabled: true, threshold: 80 },
+    sgvTargetTop: { enabled: true, threshold: 180 }
+  }
+  const goodValue = 100
+  const res = utils.getAlarmType(goodValue, alarmRules)
+  t.is(res, null)
+})
+
+
+
+test('getAlarmType returns LOW for a value between lo and targetBottom', t => {
+  const alarmRules = {
+    sgvHi: { enabled: true, threshold: 260 },
+    sgvLo: { enabled: true, threshold: 55 },
+    sgvTargetBottom: { enabled: true, threshold: 80 },
+    sgvTargetTop: { enabled: true, threshold: 180 }
+  }
+  const lowValue = 75
+  const res = utils.getAlarmType(lowValue, alarmRules)
+  t.is(res, constants.ALARM_TYPES.LOW)
+})
+
+
+
+test('getAlarmType returns URGENT_HIGH for a value < sgvLo', t => {
+  const alarmRules = {
+    sgvHi: { enabled: true, threshold: 260 },
+    sgvLo: { enabled: true, threshold: 55 },
+    sgvTargetBottom: { enabled: true, threshold: 80 },
+    sgvTargetTop: { enabled: true, threshold: 180 }
+  }
+  const lowValue = 50
+  const res = utils.getAlarmType(lowValue, alarmRules)
+  t.is(res, constants.ALARM_TYPES.URGENT_LOW)
+})
+
+
+test('getAlarmType returns LOW for a value < lo and urgent low alarms disabled', t => {
+  const alarmRules = {
+    sgvHi: { enabled: true, threshold: 260 },
+    sgvLo: { enabled: false, threshold: 55 },
+    sgvTargetBottom: { enabled: true, threshold: 80 },
+    sgvTargetTop: { enabled: true, threshold: 180 }
+  }
+  const lowValue = 50
+  const res = utils.getAlarmType(lowValue, alarmRules)
+  t.is(res, constants.ALARM_TYPES.LOW)
+})
+
