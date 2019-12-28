@@ -6,6 +6,7 @@ import * as simpleSettings from './simple/companion-settings'
 import { SETTINGS_EVENTS } from '../common/constants'
 import { addSlash, formatReading, getAlarmType, isValidUrl } from './utils'
 import { queryLastReading, queryStatus } from './nightscout'
+import { queryTomatoReading } from './tomato'
 
 // make sure the settings component starts out with default values
 
@@ -16,13 +17,17 @@ settingsStorage.setItem(SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD, '40')
 
 simpleSettings.initialize()
 
+let useTomatoServer = false
 const nightscoutConfig = {}
 
+setUseTomatoServer(JSON.parse(settingsStorage.getItem('useTomatoServer')).name)
 setNightscoutUrl(JSON.parse(settingsStorage.getItem('nightscoutUrl')).name)
 
 settingsStorage.addEventListener('change', (evt) => {
   if (evt.key == 'nightscoutUrl') {
     setNightscoutUrl(JSON.parse(evt.newValue).name)
+  } else if (evt.key == 'useTomatoServer') {
+    setUseTomatoServer(JSON.parse(evt.newValue.name))
   }
 })
 
@@ -33,6 +38,10 @@ function setNightscoutUrl(url) {
   } else {
     sendError('Bad nightscout url')
   }
+}
+
+function setUseTomatoServer(val) {
+  useTomatoServer = Boolean(val)
 }
 
 
@@ -63,6 +72,15 @@ peerSocket.onopen = () => {
 peerSocket.onmessage = async evt =>{
   if (evt.data == 'getReading') {
     try {
+      if ( useTomatoServer ) { // tomato has priority if set to true
+        const { sgv, age } = await queryTomatoReading()
+        peerSocket.send({
+          reading: formatReading(sgv, nightscoutConfig.units),
+          age,
+          alarm: getAlarmType(sgv, nightscoutConfig.alarms)
+        })
+        return
+      }
       const { sgv, age } = await queryLastReading(nightscoutConfig.url)
       peerSocket.send({
         reading: formatReading(sgv, nightscoutConfig.units),
