@@ -14,20 +14,22 @@ settingsStorage.setItem(SETTINGS_EVENTS.SHOW_SECOND_TIME, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SHOW_BATTERY_STATUS, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SHOW_SYNC_WARNING, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD, '40')
+settingsStorage.setItem('useTomatoServer', true)
+settingsStorage.setItem('nightscoutUrl', '')
 
 simpleSettings.initialize()
 
-let useTomatoServer = false
+let useTomatoServer = true
 const nightscoutConfig = {}
 
-setUseTomatoServer(JSON.parse(settingsStorage.getItem('useTomatoServer')).name)
-setNightscoutUrl(JSON.parse(settingsStorage.getItem('nightscoutUrl')).name)
+// setUseTomatoServer(JSON.parse(settingsStorage.getItem('useTomatoServer')).name)
+// setNightscoutUrl(JSON.parse(settingsStorage.getItem('nightscoutUrl')).name)
 
 settingsStorage.addEventListener('change', (evt) => {
   if (evt.key == 'nightscoutUrl') {
     setNightscoutUrl(JSON.parse(evt.newValue).name)
   } else if (evt.key == 'useTomatoServer') {
-    setUseTomatoServer(JSON.parse(evt.newValue.name))
+    // setUseTomatoServer(JSON.parse(evt.newValue).name)
   }
 })
 
@@ -40,12 +42,9 @@ function setNightscoutUrl(url) {
   }
 }
 
-function setUseTomatoServer(val) {
-  useTomatoServer = Boolean(val)
-}
-
 
 function sendError(message) {
+  console.error(message)
   if (peerSocket.readyState == peerSocket.OPEN) {
     peerSocket.send({ error: message})
   }
@@ -69,15 +68,22 @@ peerSocket.onopen = () => {
   console.log('Socket open')
 }
 
+const alarmRules = {
+  sgvHi: { enabled: true, threshold: 250 },
+  sgvLo: { enabled: true, threshold: 70 },
+  sgvTargetBottom: { enabled: true, threshold: 81 },
+  sgvTargetTop: { enabled: true, threshold: 171 }
+}
+
 peerSocket.onmessage = async evt =>{
   if (evt.data == 'getReading') {
     try {
       if ( useTomatoServer ) { // tomato has priority if set to true
-        const { sgv, age } = await queryTomatoReading()
+        const { sgv, age } = queryTomatoReading()
         peerSocket.send({
-          reading: formatReading(sgv, nightscoutConfig.units),
+          reading: formatReading(sgv, 'mmol'),
           age,
-          alarm: getAlarmType(sgv, nightscoutConfig.alarms)
+          alarm: getAlarmType(sgv, alarmRules)
         })
         return
       }

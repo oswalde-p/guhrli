@@ -9,7 +9,7 @@
     "esm": "^3.2.25"
   },
   "fitbit": {
-    "appUUID": "385076eb-cd5a-40b9-ac6e-64cb0fa2e25b",
+    "appUUID": "385076eb-cd5a-40b9-ac6e-64cb0fa2e25c",
     "appType": "clockface",
     "appDisplayName": "Quack+scout",
     "iconFile": "resources/icon.png",

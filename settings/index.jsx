@@ -1,14 +1,14 @@
 function settingsComponent() {
   return (
     <Page>
-    <Section
-      title={<Text bold>Tomoato (miao miao)</Text>}>
-      <Toggle
-        label="Use local server"
-        value="true"
-        settingsKey="useTomatoServer"
-      />
-    </Section>
+      <Section
+        title={<Text bold>Tomoato (miao miao)</Text>}>
+        <Toggle
+          label="Use local server"
+          value="false"
+          settingsKey="useTomatoServer"
+        />
+      </Section>
       <Section
         title={<Text bold>Nightscout</Text>}>
         <TextInput
