@@ -1,3 +1,5 @@
+import { sgvReading } from './classes/sgvReading'
+
 const TOMATO_URL = 'http://127.0.0.1:11111'
 
 async function queryTomatoReading() {
@@ -5,13 +7,8 @@ async function queryTomatoReading() {
   const res = await fetchJSON()
   const { bgs } = res
   const lastReading = bgs[0]
-  const now = new Date()
   if (!lastReading) return {}
-  const age = Math.round((now - lastReading.datetime) / (60 * 1000))
-  return {
-    sgv: lastReading.sgv,
-    age
-  }
+  return new sgvReading(lastReading.sgv, lastReading.datetime)
 }
 
 async function fetchJSON() {

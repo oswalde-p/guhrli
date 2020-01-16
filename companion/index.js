@@ -4,7 +4,7 @@ import { peerSocket } from 'messaging'
 import * as simpleSettings from './simple/companion-settings'
 
 import { SETTINGS_EVENTS } from '../common/constants'
-import { addSlash, formatReading, getAlarmType, isValidUrl } from './utils'
+import { addSlash, isValidUrl } from './utils'
 import { queryLastReading, queryStatus } from './nightscout'
 import { queryTomatoReading } from './tomato'
 
@@ -21,6 +21,7 @@ simpleSettings.initialize()
 
 let useTomatoServer = true
 const nightscoutConfig = {}
+let latestReading = {}
 
 // setUseTomatoServer(JSON.parse(settingsStorage.getItem('useTomatoServer')).name)
 // setNightscoutUrl(JSON.parse(settingsStorage.getItem('nightscoutUrl')).name)
@@ -64,47 +65,45 @@ async function intializeNightscout() {
   }
 }
 
-peerSocket.onopen = () => {
-  console.log('Socket open')
-}
-
-peerSocket.onerror = function(err) {
-  console.log(`Companion ERROR: ${err.code} ${err.message}`)
-}
-
-const alarmRules = {
-  sgvHi: { enabled: true, threshold: 250 },
-  sgvLo: { enabled: true, threshold: 70 },
-  sgvTargetBottom: { enabled: true, threshold: 81 },
-  sgvTargetTop: { enabled: true, threshold: 171 }
-}
-
-peerSocket.onmessage = async evt =>{
-  if (evt.data == 'getReading') {
-    try {
-      if ( useTomatoServer ) { // tomato has priority if set to true
-        const { sgv, age } = await queryTomatoReading()
-        console.log(getAlarmType(sgv, alarmRules))
-        console.log(sgv)
-        peerSocket.send({
-          reading: formatReading(sgv, 'mmol'),
-          age,
-          alarm: getAlarmType(sgv, alarmRules)
-        })
-        return
-      }
-      const { sgv, age } = await queryLastReading(nightscoutConfig.url)
-      peerSocket.send({
-        reading: formatReading(sgv, nightscoutConfig.units),
-        age,
-        alarm: getAlarmType(sgv, nightscoutConfig.alarms)
-      })
-    } catch (err) {
-      if (err.message.startsWith('Fetch Error')) {
-        sendError('API error, Check URL')
-      }
+async function fetchReading() {
+  try {
+    let reading
+    if ( useTomatoServer ) { // tomato has priority if set to true
+      reading = await queryTomatoReading()
+    } else {
+      // nighscout flow
+      reading = await queryLastReading(nightscoutConfig.url)
+    }
+    console.log({ reading }) // eslint-disable-line no-console
+    if (reading && (!latestReading || latestReading.value != reading.value)) {
+      latestReading = reading
+      sendReading()
+    }
+  } catch (err) {
+    if (err.message.startsWith('Fetch Error')) {
+      sendError('API error, Check URL')
     }
   }
 }
 
+function sendReading() {
+  if (peerSocket.readyState == peerSocket.OPEN) {
+    const data = latestReading.serialize('mmol')
+    return peerSocket.send(data)
+  }
+  console.log('Cannot send reading: peerSocket closed') // eslint-disable-line no-console
+}
+
+peerSocket.onopen = () => {
+  console.log('Socket open') // eslint-disable-line no-console
+  fetchReading()
+}
+
+peerSocket.onerror = function(err) {
+  console.log(`Companion ERROR: ${err.code} ${err.message}`) // eslint-disable-line no-console
+}
+
 intializeNightscout()
+
+// try to update reading every minute
+setInterval(fetchReading, 1000 * 60)

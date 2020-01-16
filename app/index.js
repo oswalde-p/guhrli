@@ -40,7 +40,6 @@ clock.ontick = (evt) => {
   updateSecondTime(now, secondtimeOffset)
   updateBattery()
   updateConnectionStatus(now)
-  requestReading()
 }
 
 function updateConnectionStatus(now){
@@ -92,17 +91,18 @@ function updateClock(now){
   timeText.text = getTimeStr(now)
 }
 
-function requestReading(){
-  // here we make the call to the companion to fetch data from nightscout
+function checkConnection(){
   if (peerSocket.readyState == peerSocket.OPEN) {
     message.text = ''
-    return peerSocket.send('getReading')
+    return
   }
   console.log('peerSocket not ready, state: ' + peerSocket.readyState)
   message.text = 'Disconnected'
 }
 
-console.log(JSON.stringify(peerSocket, null, 2))
+// check connection every 5 minutes
+setInterval(checkConnection, 1000 * 60 * 5)
+
 
 function warningVibrate(){
   vibration.start('nudge-max')
@@ -141,12 +141,12 @@ peerSocket.onmessage = evt => {
     return
   }
   clearAlert('apiError')
-
+  console.log('received:')
+  console.log(JSON.stringify(data, null, 2))
   if (data.reading) {
-    updateReading(data.reading, data.age)
+    updateReading(data.reading, data.time)
     setAlarm(data.alarm)
   }
-
 }
 
 function setAlarm(alarm) {
@@ -162,8 +162,9 @@ const colorMap = {
   URGENT_LOW: '#0000bb'
 }
 
-function updateReading(reading, age) {
+function updateReading(reading, time) {
   sgvText.text = reading
+  const age = Math.round((new Date() - time) / (60 * 1000))
   if (age > SGV_AGE_DISPLAY) {
     if (age < 60 ) {
       sgvAgeText.text = `${age}m`
@@ -173,10 +174,8 @@ function updateReading(reading, age) {
   } else {
     sgvAgeText.text = ''
   }
-  // don't forget to change the clock colour!
 }
 
-setInterval(requestReading, 1000 * 30)
 
 /* -------- SETTINGS -------- */
 function settingsCallback(data) {

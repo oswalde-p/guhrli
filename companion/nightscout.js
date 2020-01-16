@@ -1,3 +1,4 @@
+import { sgvReading } from './classes/sgvReading'
 
 async function queryStatus(urlBase) {
   if (!urlBase) return {}
@@ -12,8 +13,7 @@ async function queryLastReading(urlBase){
   const results =  await fetchJSON(`${urlBase}api/v1/entries?count=1`)
   if (results.length == 0) return {}
   const { sgv, date } = results[0]
-  const age = Math.round((new Date() - date) / (60 * 1000))
-  return { sgv, age}
+  return new sgvReading(sgv, date) // todo: test this
 }
 
 
