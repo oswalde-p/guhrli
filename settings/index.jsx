@@ -2,7 +2,7 @@ function settingsComponent() {
   return (
     <Page>
       <Section
-        title={<Text bold>Tomoato (miao miao)</Text>}>
+        title={<Text bold>Tomato (miao miao)</Text>}>
         <Toggle
           label="Use local server"
           value="false"
