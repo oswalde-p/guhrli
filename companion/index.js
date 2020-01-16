@@ -75,7 +75,7 @@ async function fetchReading() {
       reading = await queryLastReading(nightscoutConfig.url)
     }
     console.log({ reading }) // eslint-disable-line no-console
-    if (reading && (!latestReading || latestReading.value != reading.value)) {
+    if (reading && (!latestReading || latestReading.time != reading.time)) {
       latestReading = reading
       sendReading()
     }
