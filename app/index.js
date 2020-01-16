@@ -31,6 +31,9 @@ const secondTimeText = document.getElementById('stat2')
 const sgvText = document.getElementById('reading')
 const sgvAgeText = document.getElementById('reading-age')
 
+// actual data
+let lastReading = {}
+
 batteryStatusText.text = 'init'
 // Update the <text> element every tick with the current time
 clock.ontick = (evt) => {
@@ -40,6 +43,7 @@ clock.ontick = (evt) => {
   updateSecondTime(now, secondtimeOffset)
   updateBattery()
   updateConnectionStatus(now)
+  updateReadingAge()
 }
 
 function updateConnectionStatus(now){
@@ -144,14 +148,16 @@ peerSocket.onmessage = evt => {
   console.log('received:')
   console.log(JSON.stringify(data, null, 2))
   if (data.reading) {
-    updateReading(data.reading, data.time)
-    setAlarm(data.alarm)
+    lastReading = data
+    updateReading()
+    updateReadingAge()
+    setAlarm()
   }
 }
 
-function setAlarm(alarm) {
+function setAlarm() {
   // this should be done by adding classes but I can't work out how to do that
-  timeText.style.fill = colorMap[alarm] || colorMap.default
+  timeText.style.fill = colorMap[lastReading.alarm] || colorMap.default
 }
 
 const colorMap = {
@@ -162,9 +168,14 @@ const colorMap = {
   URGENT_LOW: '#0000bb'
 }
 
-function updateReading(reading, time) {
-  sgvText.text = reading
-  const age = Math.round((new Date() - time) / (60 * 1000))
+function updateReading() {
+  if (!lastReading) return
+  sgvText.text = lastReading.reading
+}
+
+function updateReadingAge() {
+  if (!lastReading) return
+  const age = Math.round((new Date() - lastReading.time) / (60 * 1000))
   if (age > SGV_AGE_DISPLAY) {
     if (age < 60 ) {
       sgvAgeText.text = `${age}m`
