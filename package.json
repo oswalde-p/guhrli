@@ -9,13 +9,14 @@
     "esm": "^3.2.25"
   },
   "fitbit": {
-    "appUUID": "385076eb-cd5a-40b9-ac6e-64cb0fa2e25c",
+    "appUUID": "704da60d-1ef6-416f-abd8-61cb3f556801",
     "appType": "clockface",
     "appDisplayName": "Quack+scout",
     "iconFile": "resources/icon.png",
     "wipeColor": "#ff5722",
     "requestedPermissions": [
-      "access_internet"
+      "access_internet",
+      "run_background"
     ],
     "buildTargets": [
       "meson"

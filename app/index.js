@@ -9,7 +9,7 @@ import * as simpleSettings from './simple/device-settings'
 import { formatDate, getTimeStr, round, isEmpty } from '../common/utils'
 import { SETTINGS_EVENTS, DEFAULT_WARNING_THRESHOLD, LOW_BATTERY_LIMIT } from '../common/constants'
 
-const SGV_AGE_DISPLAY = 5 // minutes
+const SGV_AGE_DISPLAY = 15 // after this many minutes, age of reading is displayed
 
 // Update the clock every minute
 clock.granularity = 'minutes'
@@ -95,9 +95,14 @@ function updateClock(now){
 function requestReading(){
   // here we make the call to the companion to fetch data from nightscout
   if (peerSocket.readyState == peerSocket.OPEN) {
-    peerSocket.send('getReading')
+    message.text = ''
+    return peerSocket.send('getReading')
   }
+  console.log('peerSocket not ready, state: ' + peerSocket.readyState)
+  message.text = 'Disconnected'
 }
+
+console.log(JSON.stringify(peerSocket, null, 2))
 
 function warningVibrate(){
   vibration.start('nudge-max')
@@ -171,6 +176,8 @@ function updateReading(reading, age) {
   // don't forget to change the clock colour!
 }
 
+setInterval(requestReading, 1000 * 30)
+
 /* -------- SETTINGS -------- */
 function settingsCallback(data) {
   if (!data) {
@@ -203,4 +210,11 @@ function settingsCallback(data) {
 
 }
 simpleSettings.initialize(settingsCallback)
-peerSocket.onopen = requestReading
+
+peerSocket.onopen = function() {
+  console.log('peersocket open')
+}
+
+peerSocket.onerror = function(err) {
+  console.log(`Device ERROR: ${err.code} ${err.message}`)
+}

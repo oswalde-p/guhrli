@@ -68,6 +68,10 @@ peerSocket.onopen = () => {
   console.log('Socket open')
 }
 
+peerSocket.onerror = function(err) {
+  console.log(`Companion ERROR: ${err.code} ${err.message}`)
+}
+
 const alarmRules = {
   sgvHi: { enabled: true, threshold: 250 },
   sgvLo: { enabled: true, threshold: 70 },
@@ -79,7 +83,9 @@ peerSocket.onmessage = async evt =>{
   if (evt.data == 'getReading') {
     try {
       if ( useTomatoServer ) { // tomato has priority if set to true
-        const { sgv, age } = queryTomatoReading()
+        const { sgv, age } = await queryTomatoReading()
+        console.log(getAlarmType(sgv, alarmRules))
+        console.log(sgv)
         peerSocket.send({
           reading: formatReading(sgv, 'mmol'),
           age,
