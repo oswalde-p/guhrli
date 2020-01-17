@@ -23,7 +23,8 @@ class sgvReading {
   serialize(units) {
     return {
       reading: formatReading(this.value, units),
-      time: this.time
+      time: this.time,
+      alarm: this.alarm
     }
   }
 

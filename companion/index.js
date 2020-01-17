@@ -3,7 +3,7 @@ import { peerSocket } from 'messaging'
 
 import * as simpleSettings from './simple/companion-settings'
 
-import { SETTINGS_EVENTS } from '../common/constants'
+import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS } from '../common/constants'
 import { addSlash, isValidUrl } from './utils'
 import { queryLastReading, queryStatus } from './nightscout'
 import { queryTomatoReading } from './tomato'
@@ -106,4 +106,4 @@ peerSocket.onerror = function(err) {
 intializeNightscout()
 
 // try to update reading every minute
-setInterval(fetchReading, 1000 * 60)
+setInterval(fetchReading, 1000 * 60 * FETCH_FREQUENCY_MINS)

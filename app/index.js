@@ -9,7 +9,7 @@ import * as simpleSettings from './simple/device-settings'
 import { formatDate, getTimeStr, round, isEmpty } from '../common/utils'
 import { SETTINGS_EVENTS, DEFAULT_WARNING_THRESHOLD, LOW_BATTERY_LIMIT } from '../common/constants'
 
-const SGV_AGE_DISPLAY = 15 // after this many minutes, age of reading is displayed
+const SGV_AGE_DISPLAY = 5 // after this many minutes, age of reading is displayed
 
 // Update the clock every minute
 clock.granularity = 'minutes'
