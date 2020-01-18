@@ -5,8 +5,8 @@ import * as simpleSettings from './simple/companion-settings'
 
 import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS } from '../common/constants'
 import { addSlash, isValidUrl } from './utils'
-import { queryLastReading, queryStatus } from './nightscout'
-import { queryTomatoReading } from './tomato'
+import { nightscoutService } from './services/nightscout'
+import { tomatoService } from './services/tomato'
 
 // make sure the settings component starts out with default values
 
@@ -19,7 +19,7 @@ settingsStorage.setItem('nightscoutUrl', '')
 
 simpleSettings.initialize()
 
-let useTomatoServer = true
+let sgvService = {}
 const nightscoutConfig = {}
 let latestReading = {}
 
@@ -51,6 +51,12 @@ function sendError(message) {
   }
 }
 
+function initializeService() {
+  // TODO: set service based on settings
+  sgvService = new tomatoService()
+  return sgvService.initialize()
+}
+
 async function intializeNightscout() {
   if (!nightscoutConfig && nightscoutConfig.url) sendError('Nightscout not configured')
   try {
@@ -67,13 +73,7 @@ async function intializeNightscout() {
 
 async function fetchReading() {
   try {
-    let reading
-    if ( useTomatoServer ) { // tomato has priority if set to true
-      reading = await queryTomatoReading()
-    } else {
-      // nighscout flow
-      reading = await queryLastReading(nightscoutConfig.url)
-    }
+    let reading = await sgvService.latestReading()
     console.log({ reading }) // eslint-disable-line no-console
     if (reading && (!latestReading || latestReading.time != reading.time)) {
       latestReading = reading
@@ -103,7 +103,7 @@ peerSocket.onerror = function(err) {
   console.log(`Companion ERROR: ${err.code} ${err.message}`) // eslint-disable-line no-console
 }
 
-intializeNightscout()
+initializeService()
 
 // try to update reading every minute
 setInterval(fetchReading, 1000 * 60 * FETCH_FREQUENCY_MINS)

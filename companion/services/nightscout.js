@@ -1,4 +1,4 @@
-import { sgvReading } from './classes/sgvReading'
+import { sgvReading } from '../classes/sgvReading'
 
 async function queryStatus(urlBase) {
   if (!urlBase) return {}

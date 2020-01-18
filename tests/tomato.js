@@ -1,6 +1,7 @@
 import test from 'ava'
-import * as tomatoService from '../companion/tomato'
+import { tomatoService } from '../companion/services/tomato'
 
-test('queryTomatoReading is a function', async t => {
-  t.is(typeof tomatoService.queryTomatoReading, 'function')
+test('latestReading is a function', t => {
+  const service = new tomatoService()
+  t.is(typeof service.latestReading, 'function')
 })
