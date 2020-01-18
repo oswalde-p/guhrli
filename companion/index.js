@@ -4,7 +4,7 @@ import { peerSocket } from 'messaging'
 import * as simpleSettings from './simple/companion-settings'
 
 import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS } from '../common/constants'
-import { addSlash, isValidUrl } from './utils'
+import { addSlash } from './utils'
 import { nightscoutService } from './services/nightscout'
 import { tomatoService } from './services/tomato'
 
@@ -20,7 +20,7 @@ settingsStorage.setItem('nightscoutUrl', '')
 simpleSettings.initialize()
 
 let sgvService = {}
-const nightscoutConfig = {}
+let displayUnits
 let latestReading = {}
 
 // setUseTomatoServer(JSON.parse(settingsStorage.getItem('useTomatoServer')).name)
@@ -28,42 +28,26 @@ let latestReading = {}
 
 settingsStorage.addEventListener('change', (evt) => {
   if (evt.key == 'nightscoutUrl') {
-    setNightscoutUrl(JSON.parse(evt.newValue).name)
+    settingsStorage.setItem('nightscoutUrl', addSlash(JSON.parse(evt.newValue).name))
   } else if (evt.key == 'useTomatoServer') {
     // setUseTomatoServer(JSON.parse(evt.newValue).name)
   }
 })
 
-function setNightscoutUrl(url) {
-  url = addSlash(url)
-  if (isValidUrl(url)) {
-    nightscoutConfig.url = url
-  } else {
-    sendError('Bad nightscout url')
-  }
-}
-
-
 function sendError(message) {
-  console.error(message)
+  console.error(`Error: ${message}`)
   if (peerSocket.readyState == peerSocket.OPEN) {
     peerSocket.send({ error: message})
   }
 }
 
-function initializeService() {
+async function initializeService() {
   // TODO: set service based on settings
   sgvService = new tomatoService()
-  return sgvService.initialize()
-}
-
-async function intializeNightscout() {
-  if (!nightscoutConfig && nightscoutConfig.url) sendError('Nightscout not configured')
+  // sgvService = new nightscoutService('https://oswalde-nightscout.herokuapp.com/')
   try {
-    const { units, alarms }  = await queryStatus(nightscoutConfig.url)
-    // I don't understand why it thinks this is bad in this case, or how to fix it
-    nightscoutConfig.units = units // eslint-disable-line require-atomic-updates
-    nightscoutConfig.alarms = alarms // eslint-disable-line require-atomic-updates
+    await sgvService.initialize()
+    displayUnits = sgvService.units()
   } catch(err) {
     if (err.message.startsWith('Fetch Error')) {
       sendError('API error, Check URL')
@@ -88,7 +72,7 @@ async function fetchReading() {
 
 function sendReading() {
   if (peerSocket.readyState == peerSocket.OPEN) {
-    const data = latestReading.serialize('mmol')
+    const data = latestReading.serialize(displayUnits)
     return peerSocket.send(data)
   }
   console.log('Cannot send reading: peerSocket closed') // eslint-disable-line no-console
