@@ -23,5 +23,6 @@ async function fetchJSON() {
 }
 
 export {
-  queryTomatoReading
+  queryTomatoReading,
+  fetchJSON
 }
