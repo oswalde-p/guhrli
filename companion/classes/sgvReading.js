@@ -8,18 +8,6 @@ class sgvReading {
     this.alarm = getAlarmType(valueMgdL, alarmRules)
   }
 
-  value(units) {
-    return formatReading(this.value, units)
-  }
-
-  mgdl() {
-    return formatReading(this.value)
-  }
-
-  mmol() {
-    return formatReading(this.value, 'mmol')
-  }
-
   serialize(units) {
     return {
       reading: formatReading(this.value, units),
