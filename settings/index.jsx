@@ -2,22 +2,21 @@ function settingsComponent() {
   return (
     <Page>
       <Section
-        title={<Text bold>Tomato (miao miao)</Text>}>
-        <Toggle
-          label="Use local server"
-          value="false"
-          settingsKey="useTomatoServer"
+        title={<Text bold>BG Source</Text>}>
+        <Select
+          label={'Source'}
+          settingsKey="bgSource"
+          options={[
+            {name:'Nightscout'},
+            {name:'Tomato'}
+          ]}
         />
-      </Section>
-      <Section
-        title={<Text bold>Nightscout</Text>}>
         <TextInput
-          label="URL"
+          label="Nightscout URL"
           placeholder="https://<your-nightscout-app>.com"
           settingsKey="nightscoutUrl"
           type="string"
         />
-        <Link source="https://github.com/nightscout/cgm-remote-monitor">What's this?</Link>
       </Section>
       <Section
         title={<Text bold>Secondary time</Text>}>

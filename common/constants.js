@@ -6,6 +6,8 @@ const ALARM_TYPES = {
 }
 
 const SETTINGS_EVENTS = {
+  BG_SOURCE: 'bgSource',
+  NIGHTSCOUT_URL: 'nightscoutUrl',
   SHOW_BATTERY_STATUS: 'showBatteryStatus',
   SHOW_SECOND_TIME: 'showSecondTime',
   SECOND_TIME_OFFSET: 'secondTimeOffset',
@@ -24,11 +26,17 @@ const UNITS = {
   MGDL: 'mgdl'
 }
 
+const BG_SOURCES = {
+  NIGHTSCOUT: 0,
+  TOMATO: 1
+}
+
 export {
   ALARM_TYPES,
   SETTINGS_EVENTS,
   DEFAULT_WARNING_THRESHOLD,
   LOW_BATTERY_LIMIT,
   FETCH_FREQUENCY_MINS,
-  UNITS
+  UNITS,
+  BG_SOURCES
 }

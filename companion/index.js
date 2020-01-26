@@ -3,10 +3,10 @@ import { peerSocket } from 'messaging'
 
 import * as simpleSettings from './simple/companion-settings'
 
-import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS } from '../common/constants'
+import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS, BG_SOURCES } from '../common/constants'
 import { addSlash } from './utils'
-// import { nightscoutService } from './services/nightscout'
-import { tomatoService } from './services/tomato'
+import { NightscoutService } from './services/nightscout'
+import { TomatoService } from './services/tomato'
 
 // make sure the settings component starts out with default values
 
@@ -14,25 +14,34 @@ settingsStorage.setItem(SETTINGS_EVENTS.SHOW_SECOND_TIME, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SHOW_BATTERY_STATUS, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SHOW_SYNC_WARNING, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD, '40')
-settingsStorage.setItem('useTomatoServer', true)
-settingsStorage.setItem('nightscoutUrl', '')
-
 simpleSettings.initialize()
+
+// settingsStorage only sends events to device
+// so these are handled manually
+// settingsStorage.setItem(SETTINGS_EVENTS.BG_SOURCE, true)
+// settingsStorage.setItem(SETTINGS_EVENTS.NIGHTSCOUT_URL, '')
+
+settingsStorage.addEventListener('change', (evt) => {
+  if (evt.key == SETTINGS_EVENTS.BG_SOURCE){
+    const { selected } = JSON.parse(evt.newValue)
+    updateSgvService(selected[0])
+  }
+})
 
 let sgvService = {}
 let displayUnits
 let latestReading = {}
 
-// setUseTomatoServer(JSON.parse(settingsStorage.getItem('useTomatoServer')).name)
-// setNightscoutUrl(JSON.parse(settingsStorage.getItem('nightscoutUrl')).name)
 
-settingsStorage.addEventListener('change', (evt) => {
-  if (evt.key == 'nightscoutUrl') {
-    settingsStorage.setItem('nightscoutUrl', addSlash(JSON.parse(evt.newValue).name))
-  } else if (evt.key == 'useTomatoServer') {
-    // setUseTomatoServer(JSON.parse(evt.newValue).name)
+function updateSgvService(id) {
+  if (id == BG_SOURCES.TOMATO) {
+    return sgvService = new TomatoService()
+  } else if (id == BG_SOURCES.NIGHTSCOUT) {
+    return sgvService = new NightscoutService(addSlash('https://oswalde-nightscout.herokuapp.com/'))
   }
-})
+  console.error(`Unknown sgv service id: ${id}`) // eslint-disable-line no-console
+}
+
 
 function sendError(message) {
   console.error(`Error: ${message}`) // eslint-disable-line no-console
@@ -42,9 +51,6 @@ function sendError(message) {
 }
 
 async function initializeService() {
-  // TODO: set service based on settings
-  sgvService = new tomatoService()
-  // sgvService = new nightscoutService('https://oswalde-nightscout.herokuapp.com/')
   try {
     const { units } = await sgvService.initialize()
     displayUnits = units
@@ -89,6 +95,8 @@ peerSocket.onerror = function(err) {
   console.log(`Companion ERROR: ${err.code} ${err.message}`) // eslint-disable-line no-console
 }
 
+const { selected } = JSON.parse(settingsStorage.getItem(SETTINGS_EVENTS.BG_SOURCE))
+updateSgvService(selected[0])
 initializeService()
 
 // try to update reading every minute

@@ -4,7 +4,7 @@ import { UNITS } from '../../common/constants'
 
 const TOMATO_URL = 'http://127.0.0.1:11111'
 
-class tomatoService extends sgvServiceBase {
+class TomatoService extends sgvServiceBase {
   constructor() {
     super()
     this.units = ''
@@ -46,5 +46,5 @@ const unitsMap = {
 
 
 export {
-  tomatoService
+  TomatoService
 }

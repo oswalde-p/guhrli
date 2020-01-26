@@ -3,7 +3,7 @@ import { sgvServiceBase } from './sgv-service-base'
 
 import { UNITS } from '../../common/constants'
 
-class nightscoutService extends sgvServiceBase {
+class NightscoutService extends sgvServiceBase {
   constructor(url) {
     super()
     if (!url) {
@@ -77,5 +77,5 @@ const unitsMap = {
 }
 
 export {
-  nightscoutService
+  NightscoutService
 }
