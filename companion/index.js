@@ -5,7 +5,7 @@ import * as simpleSettings from './simple/companion-settings'
 
 import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS } from '../common/constants'
 import { addSlash } from './utils'
-import { nightscoutService } from './services/nightscout'
+// import { nightscoutService } from './services/nightscout'
 import { tomatoService } from './services/tomato'
 
 // make sure the settings component starts out with default values
@@ -35,7 +35,7 @@ settingsStorage.addEventListener('change', (evt) => {
 })
 
 function sendError(message) {
-  console.error(`Error: ${message}`)
+  console.error(`Error: ${message}`) // eslint-disable-line no-console
   if (peerSocket.readyState == peerSocket.OPEN) {
     peerSocket.send({ error: message})
   }
@@ -46,11 +46,13 @@ async function initializeService() {
   sgvService = new tomatoService()
   // sgvService = new nightscoutService('https://oswalde-nightscout.herokuapp.com/')
   try {
-    await sgvService.initialize()
-    displayUnits = sgvService.units()
+    const { units } = await sgvService.initialize()
+    displayUnits = units
   } catch(err) {
     if (err.message.startsWith('Fetch Error')) {
       sendError('API error, Check URL')
+    } else {
+      console.log(err) // eslint-disable-line no-console
     }
   }
 }

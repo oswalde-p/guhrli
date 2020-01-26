@@ -7,12 +7,12 @@
   "bgs": [
     {
       "device": "miaomiao",
-      "datetime": 1577569228286,
-      "sgv": 120,
+      "datetime": 1579995390265,
+      "sgv": 90,
       "type": "sgv",
       "battery": 10,
       "delta": 0,
-      "units_hint": "mmol"
+      "units_hint": "mgdl"
     },
     {
       "device": "miaomiao",

@@ -19,7 +19,8 @@ class nightscoutService extends sgvServiceBase {
     // I don't understand why it thinks this is bad in this case, or how to fix it
     this.config.units = unitsMap[units] // eslint-disable-line require-atomic-updates
     this.config.alarms = alarms // eslint-disable-line require-atomic-updates
-    console.log('nightscout service initialized')
+    console.log('nightscout service initialized') // eslint-disable-line no-console
+    return(this.config)
   }
 
   async latestReading() {
@@ -27,10 +28,6 @@ class nightscoutService extends sgvServiceBase {
     if (results.length == 0) return {}
     const { sgv, date } = results[0]
     return new sgvReading(sgv, date, this.config.alarms)
-  }
-
-  units() {
-    return this.config.units
   }
 
   async  _queryStatus() {

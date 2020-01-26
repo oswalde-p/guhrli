@@ -11,10 +11,6 @@ class sgvServiceBase {
   async latestReading() {
     throw new Error('Child class must implement latestReading() method')
   }
-
-  units() {
-    return UNITS.MGDL
-  }
 }
 
 export { sgvServiceBase }
