@@ -18,12 +18,13 @@ simpleSettings.initialize()
 
 // settingsStorage only sends events to device
 // so these are handled manually
-// settingsStorage.setItem(SETTINGS_EVENTS.BG_SOURCE, true)
-// settingsStorage.setItem(SETTINGS_EVENTS.NIGHTSCOUT_URL, '')
 
 settingsStorage.addEventListener('change', (evt) => {
   if (evt.key == SETTINGS_EVENTS.BG_SOURCE){
     const { selected } = JSON.parse(evt.newValue)
+    updateSgvService(selected[0])
+  } else if (evt.key == SETTINGS_EVENTS.NIGHTSCOUT_URL){
+    const { selected } = JSON.parse(settingsStorage.getItem(SETTINGS_EVENTS.BG_SOURCE))
     updateSgvService(selected[0])
   }
 })
@@ -37,7 +38,12 @@ function updateSgvService(id) {
   if (id == BG_SOURCES.TOMATO) {
     return sgvService = new TomatoService()
   } else if (id == BG_SOURCES.NIGHTSCOUT) {
-    return sgvService = new NightscoutService(addSlash('https://oswalde-nightscout.herokuapp.com/'))
+    const nightscoutSetting = settingsStorage.getItem(SETTINGS_EVENTS.NIGHTSCOUT_URL)
+    if (nightscoutSetting) {
+      const { name: url } = JSON.parse(nightscoutSetting)
+      return sgvService = new NightscoutService(addSlash(url))
+    }
+    console.error('Nighscout url not set') // eslint-disable-line no-console
   }
   console.error(`Unknown sgv service id: ${id}`) // eslint-disable-line no-console
 }
@@ -58,6 +64,7 @@ async function initializeService() {
     if (err.message.startsWith('Fetch Error')) {
       sendError('API error, Check URL')
     } else {
+      console.log('Error initializing service')
       console.log(err) // eslint-disable-line no-console
     }
   }
