@@ -31,11 +31,10 @@ const secondTimeText = document.getElementById('stat2')
 const sgvText = document.getElementById('reading')
 const sgvAgeText = document.getElementById('reading-age')
 
-// actual data
 let lastReading = {}
 
 batteryStatusText.text = 'init'
-// Update the <text> element every tick with the current time
+
 clock.ontick = (evt) => {
   let now = evt.date
   updateClock(now)
@@ -145,8 +144,6 @@ peerSocket.onmessage = evt => {
     return
   }
   clearAlert('apiError')
-  console.log('received:')
-  console.log(JSON.stringify(data, null, 2))
   if (data.reading) {
     lastReading = data
     updateReading()

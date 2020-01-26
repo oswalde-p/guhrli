@@ -23,9 +23,11 @@ settingsStorage.addEventListener('change', (evt) => {
   if (evt.key == SETTINGS_EVENTS.BG_SOURCE){
     const { selected } = JSON.parse(evt.newValue)
     updateSgvService(selected[0])
+    initializeService()
   } else if (evt.key == SETTINGS_EVENTS.NIGHTSCOUT_URL){
     const { selected } = JSON.parse(settingsStorage.getItem(SETTINGS_EVENTS.BG_SOURCE))
     updateSgvService(selected[0])
+    initializeService()
   }
 })
 
@@ -102,7 +104,8 @@ peerSocket.onerror = function(err) {
   console.log(`Companion ERROR: ${err.code} ${err.message}`) // eslint-disable-line no-console
 }
 
-const { selected } = JSON.parse(settingsStorage.getItem(SETTINGS_EVENTS.BG_SOURCE))
+const res = JSON.parse(settingsStorage.getItem(SETTINGS_EVENTS.BG_SOURCE))
+const selected = res ? res.selected : []
 updateSgvService(selected[0])
 initializeService()
 
