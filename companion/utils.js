@@ -33,7 +33,7 @@ function getAlarmType(sgvVal, alarmRules) {
   } else if (alarmRules.sgvTargetBottom.enabled && sgvVal < alarmRules.sgvTargetBottom.threshold) {
     return ALARM_TYPES.LOW
   }
-  return null
+  return
 }
 
 export {

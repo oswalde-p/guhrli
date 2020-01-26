@@ -9,7 +9,7 @@ import * as simpleSettings from './simple/device-settings'
 import { formatDate, getTimeStr, round, isEmpty } from '../common/utils'
 import { SETTINGS_EVENTS, DEFAULT_WARNING_THRESHOLD, LOW_BATTERY_LIMIT } from '../common/constants'
 
-const SGV_AGE_DISPLAY = 5 // minutes
+const SGV_AGE_DISPLAY = 5 // after this many minutes, age of reading is displayed
 
 // Update the clock every minute
 clock.granularity = 'minutes'
@@ -31,8 +31,10 @@ const secondTimeText = document.getElementById('stat2')
 const sgvText = document.getElementById('reading')
 const sgvAgeText = document.getElementById('reading-age')
 
+let lastReading = {}
+
 batteryStatusText.text = 'init'
-// Update the <text> element every tick with the current time
+
 clock.ontick = (evt) => {
   let now = evt.date
   updateClock(now)
@@ -40,7 +42,7 @@ clock.ontick = (evt) => {
   updateSecondTime(now, secondtimeOffset)
   updateBattery()
   updateConnectionStatus(now)
-  requestReading()
+  updateReadingAge()
 }
 
 function updateConnectionStatus(now){
@@ -92,12 +94,18 @@ function updateClock(now){
   timeText.text = getTimeStr(now)
 }
 
-function requestReading(){
-  // here we make the call to the companion to fetch data from nightscout
+function checkConnection(){
   if (peerSocket.readyState == peerSocket.OPEN) {
-    peerSocket.send('getReading')
+    message.text = ''
+    return
   }
+  console.log('peerSocket not ready, state: ' + peerSocket.readyState)
+  message.text = 'Disconnected'
 }
+
+// check connection every 5 minutes
+setInterval(checkConnection, 1000 * 60 * 5)
+
 
 function warningVibrate(){
   vibration.start('nudge-max')
@@ -136,17 +144,17 @@ peerSocket.onmessage = evt => {
     return
   }
   clearAlert('apiError')
-
   if (data.reading) {
-    updateReading(data.reading, data.age)
-    setAlarm(data.alarm)
+    lastReading = data
+    updateReading()
+    updateReadingAge()
+    setAlarm()
   }
-
 }
 
-function setAlarm(alarm) {
+function setAlarm() {
   // this should be done by adding classes but I can't work out how to do that
-  timeText.style.fill = colorMap[alarm] || colorMap.default
+  timeText.style.fill = colorMap[lastReading.alarm] || colorMap.default
 }
 
 const colorMap = {
@@ -157,8 +165,14 @@ const colorMap = {
   URGENT_LOW: '#0000bb'
 }
 
-function updateReading(reading, age) {
-  sgvText.text = reading
+function updateReading() {
+  if (!lastReading) return
+  sgvText.text = lastReading.reading
+}
+
+function updateReadingAge() {
+  if (!lastReading) return
+  const age = Math.round((new Date() - lastReading.time) / (60 * 1000))
   if (age > SGV_AGE_DISPLAY) {
     if (age < 60 ) {
       sgvAgeText.text = `${age}m`
@@ -168,8 +182,8 @@ function updateReading(reading, age) {
   } else {
     sgvAgeText.text = ''
   }
-  // don't forget to change the clock colour!
 }
+
 
 /* -------- SETTINGS -------- */
 function settingsCallback(data) {
@@ -203,4 +217,11 @@ function settingsCallback(data) {
 
 }
 simpleSettings.initialize(settingsCallback)
-peerSocket.onopen = requestReading
+
+peerSocket.onopen = function() {
+  console.log('peersocket open')
+}
+
+peerSocket.onerror = function(err) {
+  console.log(`Device ERROR: ${err.code} ${err.message}`)
+}

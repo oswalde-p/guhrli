@@ -2,14 +2,21 @@ function settingsComponent() {
   return (
     <Page>
       <Section
-        title={<Text bold>Nightscout</Text>}>
+        title={<Text bold>BG Source</Text>}>
+        <Select
+          label={'Source'}
+          settingsKey="bgSource"
+          options={[
+            {name:'Nightscout'},
+            {name:'Tomato'}
+          ]}
+        />
         <TextInput
-          label="URL"
+          label="Nightscout URL"
           placeholder="https://<your-nightscout-app>.com"
           settingsKey="nightscoutUrl"
           type="string"
         />
-        <Link source="https://github.com/nightscout/cgm-remote-monitor">What's this?</Link>
       </Section>
       <Section
         title={<Text bold>Secondary time</Text>}>

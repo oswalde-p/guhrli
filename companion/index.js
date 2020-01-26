@@ -3,9 +3,10 @@ import { peerSocket } from 'messaging'
 
 import * as simpleSettings from './simple/companion-settings'
 
-import { SETTINGS_EVENTS } from '../common/constants'
-import { addSlash, formatReading, getAlarmType, isValidUrl } from './utils'
-import { queryLastReading, queryStatus } from './nightscout'
+import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS, BG_SOURCES } from '../common/constants'
+import { addSlash } from './utils'
+import { NightscoutService } from './services/nightscout'
+import { TomatoService } from './services/tomato'
 
 // make sure the settings component starts out with default values
 
@@ -13,68 +14,100 @@ settingsStorage.setItem(SETTINGS_EVENTS.SHOW_SECOND_TIME, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SHOW_BATTERY_STATUS, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SHOW_SYNC_WARNING, 'true')
 settingsStorage.setItem(SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD, '40')
-
 simpleSettings.initialize()
 
-const nightscoutConfig = {}
-
-setNightscoutUrl(JSON.parse(settingsStorage.getItem('nightscoutUrl')).name)
+// settingsStorage only sends events to device
+// so these are handled manually
 
 settingsStorage.addEventListener('change', (evt) => {
-  if (evt.key == 'nightscoutUrl') {
-    setNightscoutUrl(JSON.parse(evt.newValue).name)
+  if (evt.key == SETTINGS_EVENTS.BG_SOURCE){
+    const { selected } = JSON.parse(evt.newValue)
+    updateSgvService(selected[0])
+    initializeService()
+  } else if (evt.key == SETTINGS_EVENTS.NIGHTSCOUT_URL){
+    const { selected } = JSON.parse(settingsStorage.getItem(SETTINGS_EVENTS.BG_SOURCE))
+    updateSgvService(selected[0])
+    initializeService()
   }
 })
 
-function setNightscoutUrl(url) {
-  url = addSlash(url)
-  if (isValidUrl(url)) {
-    nightscoutConfig.url = url
-  } else {
-    sendError('Bad nightscout url')
+let sgvService = {}
+let displayUnits
+let latestReading = {}
+
+
+function updateSgvService(id) {
+  if (id == BG_SOURCES.TOMATO) {
+    return sgvService = new TomatoService()
+  } else if (id == BG_SOURCES.NIGHTSCOUT) {
+    const nightscoutSetting = settingsStorage.getItem(SETTINGS_EVENTS.NIGHTSCOUT_URL)
+    if (nightscoutSetting) {
+      const { name: url } = JSON.parse(nightscoutSetting)
+      return sgvService = new NightscoutService(addSlash(url))
+    }
+    console.error('Nighscout url not set') // eslint-disable-line no-console
   }
+  console.error(`Unknown sgv service id: ${id}`) // eslint-disable-line no-console
 }
 
 
 function sendError(message) {
+  console.error(`Error: ${message}`) // eslint-disable-line no-console
   if (peerSocket.readyState == peerSocket.OPEN) {
     peerSocket.send({ error: message})
   }
 }
 
-async function intializeNightscout() {
-  if (!nightscoutConfig && nightscoutConfig.url) sendError('Nightscout not configured')
+async function initializeService() {
   try {
-    const { units, alarms }  = await queryStatus(nightscoutConfig.url)
-    // I don't understand why it thinks this is bad in this case, or how to fix it
-    nightscoutConfig.units = units // eslint-disable-line require-atomic-updates
-    nightscoutConfig.alarms = alarms // eslint-disable-line require-atomic-updates
+    const { units } = await sgvService.initialize()
+    displayUnits = units
   } catch(err) {
+    if (err.message.startsWith('Fetch Error')) {
+      sendError('API error, Check URL')
+    } else {
+      console.log('Error initializing service')
+      console.log(err) // eslint-disable-line no-console
+    }
+  }
+}
+
+async function fetchReading() {
+  try {
+    let reading = await sgvService.latestReading()
+    console.log({ reading }) // eslint-disable-line no-console
+    if (reading && (!latestReading || latestReading.time != reading.time)) {
+      latestReading = reading
+      sendReading()
+    }
+  } catch (err) {
     if (err.message.startsWith('Fetch Error')) {
       sendError('API error, Check URL')
     }
   }
 }
 
-peerSocket.onopen = () => {
-  console.log('Socket open')
-}
-
-peerSocket.onmessage = async evt =>{
-  if (evt.data == 'getReading') {
-    try {
-      const { sgv, age } = await queryLastReading(nightscoutConfig.url)
-      peerSocket.send({
-        reading: formatReading(sgv, nightscoutConfig.units),
-        age,
-        alarm: getAlarmType(sgv, nightscoutConfig.alarms)
-      })
-    } catch (err) {
-      if (err.message.startsWith('Fetch Error')) {
-        sendError('API error, Check URL')
-      }
-    }
+function sendReading() {
+  if (peerSocket.readyState == peerSocket.OPEN) {
+    const data = latestReading.serialize(displayUnits)
+    return peerSocket.send(data)
   }
+  console.log('Cannot send reading: peerSocket closed') // eslint-disable-line no-console
 }
 
-intializeNightscout()
+peerSocket.onopen = () => {
+  console.log('Socket open') // eslint-disable-line no-console
+  fetchReading()
+}
+
+peerSocket.onerror = function(err) {
+  console.log(`Companion ERROR: ${err.code} ${err.message}`) // eslint-disable-line no-console
+}
+
+const res = JSON.parse(settingsStorage.getItem(SETTINGS_EVENTS.BG_SOURCE))
+const selected = res ? res.selected : []
+updateSgvService(selected[0])
+initializeService()
+
+// try to update reading every minute
+setInterval(fetchReading, 1000 * 60 * FETCH_FREQUENCY_MINS)

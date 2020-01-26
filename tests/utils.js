@@ -109,7 +109,7 @@ test('getAlarmType returns HIGH for a value between targetTop and ruls.sgvHi', t
 })
 
 
-test('getAlarmType returns null for a value within target range', t => {
+test('getAlarmType returns nothing for a value within target range', t => {
   const alarmRules = {
     sgvHi: { enabled: true, threshold: 260 },
     sgvLo: { enabled: true, threshold: 55 },
@@ -118,7 +118,7 @@ test('getAlarmType returns null for a value within target range', t => {
   }
   const goodValue = 100
   const res = utils.getAlarmType(goodValue, alarmRules)
-  t.is(res, null)
+  t.true(typeof res === 'undefined')
 })
 
 
