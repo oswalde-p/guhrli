@@ -27,8 +27,9 @@ const UNITS = {
 }
 
 const BG_SOURCES = {
-  NIGHTSCOUT: 0,
-  TOMATO: 1
+  NONE: 0,
+  NIGHTSCOUT: 1,
+  TOMATO: 2
 }
 
 export {
