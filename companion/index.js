@@ -8,16 +8,7 @@ import { addSlash } from './utils'
 import { NightscoutService } from './services/nightscout'
 import { TomatoService } from './services/tomato'
 
-// make sure the settings component starts out with default values
-
-settingsStorage.setItem(SETTINGS_EVENTS.SHOW_SECOND_TIME, 'true')
-settingsStorage.setItem(SETTINGS_EVENTS.SHOW_BATTERY_STATUS, 'true')
-settingsStorage.setItem(SETTINGS_EVENTS.SHOW_SYNC_WARNING, 'true')
-settingsStorage.setItem(SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD, '40')
 simpleSettings.initialize()
-
-// settingsStorage only sends events to device
-// so these are handled manually
 
 settingsStorage.addEventListener('change', (evt) => {
   if (evt.key == SETTINGS_EVENTS.BG_SOURCE){
@@ -37,6 +28,9 @@ let latestReading = {}
 
 
 function updateSgvService(id) {
+  if (!id || id == BG_SOURCES.NONE) {
+    return
+  }
   if (id == BG_SOURCES.TOMATO) {
     return sgvService = new TomatoService()
   } else if (id == BG_SOURCES.NIGHTSCOUT) {
@@ -45,7 +39,7 @@ function updateSgvService(id) {
       const { name: url } = JSON.parse(nightscoutSetting)
       return sgvService = new NightscoutService(addSlash(url))
     }
-    console.error('Nighscout url not set') // eslint-disable-line no-console
+    return console.error('Nighscout url not set') // eslint-disable-line no-console
   }
   console.error(`Unknown sgv service id: ${id}`) // eslint-disable-line no-console
 }
@@ -73,6 +67,7 @@ async function initializeService() {
 }
 
 async function fetchReading() {
+  if (!sgvService) return
   try {
     let reading = await sgvService.latestReading()
     console.log({ reading }) // eslint-disable-line no-console
@@ -107,7 +102,7 @@ peerSocket.onerror = function(err) {
 const res = JSON.parse(settingsStorage.getItem(SETTINGS_EVENTS.BG_SOURCE))
 const selected = res ? res.selected : []
 updateSgvService(selected[0])
-initializeService()
+if (sgvService) initializeService()
 
 // try to update reading every minute
 setInterval(fetchReading, 1000 * 60 * FETCH_FREQUENCY_MINS)

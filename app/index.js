@@ -5,20 +5,14 @@ import { me as device } from 'device'
 import { vibration } from 'haptics'
 import { peerSocket } from 'messaging'
 
-import * as simpleSettings from './simple/device-settings'
-import { formatDate, getTimeStr, round, isEmpty } from '../common/utils'
-import { SETTINGS_EVENTS, DEFAULT_WARNING_THRESHOLD, LOW_BATTERY_LIMIT } from '../common/constants'
+import { formatDate, getTimeStr, round } from '../common/utils'
+import { LOW_BATTERY_LIMIT } from '../common/constants'
+import { Settings } from './settings'
 
 const SGV_AGE_DISPLAY = 5 // after this many minutes, age of reading is displayed
 
 // Update the clock every minute
 clock.granularity = 'minutes'
-
-// settings variables
-
-let secondtimeOffset = 0
-let showSyncWarning = true
-let syncWarningThreshold = DEFAULT_WARNING_THRESHOLD
 
 // Get a handle on the <text> element
 const timeText = document.getElementById('time')
@@ -35,19 +29,23 @@ let lastReading = {}
 
 batteryStatusText.text = 'init'
 
-clock.ontick = (evt) => {
-  let now = evt.date
+
+function onTick(evt) {
+  let now = evt ? evt.date : new Date()
   updateClock(now)
   updateDate(now)
-  updateSecondTime(now, secondtimeOffset)
+  updateSecondTime(now) // weird
   updateBattery()
   updateConnectionStatus(now)
   updateReadingAge()
 }
 
+const settings = new Settings(onTick)
+clock.ontick = onTick
+
 function updateConnectionStatus(now){
   let minutesSinceSync = (now - device.lastSyncTime) / (60*1000)
-  if (showSyncWarning && minutesSinceSync > syncWarningThreshold){
+  if (settings.showSyncWarning && minutesSinceSync > settings.syncWarningThreshold){
     displaySyncWarning(minutesSinceSync)
     if (message.text == ''){
       // showing warning for first time
@@ -78,16 +76,17 @@ function updateDate(now){
   dateText.text = formatDate(now.getDate(), now.getMonth())
 }
 
-function updateSecondTime(now, offset){
-  secondTimeText.text = getTimeStr(now, offset)
+function updateSecondTime(now){
+  secondTimeText.text = settings.showSecondTime ? getTimeStr(now, settings.secondtimeOffset) : ''
 }
 
 function updateBattery(){
-  if(battery.chargeLevel > LOW_BATTERY_LIMIT && !battery.charging){
-    batteryStatusText.text = Math.floor(battery.chargeLevel) + '%'
-  } else {
-    batteryStatusText.text = ''
+  if (settings.showBatteryStatus) {
+    if(battery.chargeLevel > LOW_BATTERY_LIMIT && !battery.charging){
+      return batteryStatusText.text = Math.floor(battery.chargeLevel) + '%'
+    }
   }
+  batteryStatusText.text = ''
 }
 
 function updateClock(now){
@@ -109,14 +108,6 @@ setInterval(checkConnection, 1000 * 60 * 5)
 
 function warningVibrate(){
   vibration.start('nudge-max')
-}
-
-function initSettings() {
-  batteryStatusText.style.display = 'inline'
-  secondTimeText.style.display = 'inline'
-  updateSecondTime(new Date(), 0)
-  showSyncWarning = true
-  updateConnectionStatus(new Date())
 }
 
 let messages = []
@@ -183,40 +174,6 @@ function updateReadingAge() {
     sgvAgeText.text = ''
   }
 }
-
-
-/* -------- SETTINGS -------- */
-function settingsCallback(data) {
-  if (!data) {
-    return
-  } else if (isEmpty(data)) {
-    initSettings()
-  } else {
-    data[SETTINGS_EVENTS.SHOW_BATTERY_STATUS] ? batteryStatusText.style.display = 'inline' : batteryStatusText.style.display = 'none'
-
-    data[SETTINGS_EVENTS.SHOW_SECOND_TIME] ? secondTimeText.style.display = 'inline' : secondTimeText.style.display = 'none'
-
-    if (data[SETTINGS_EVENTS.SECOND_TIME_OFFSET]) {
-      secondtimeOffset = Number(data[SETTINGS_EVENTS.SECOND_TIME_OFFSET].name)
-      updateSecondTime(new Date(), secondtimeOffset)
-    }
-
-    if (data[SETTINGS_EVENTS.SHOW_SYNC_WARNING]){
-      showSyncWarning = data[SETTINGS_EVENTS.SHOW_SYNC_WARNING]
-      updateConnectionStatus(new Date())
-    } else {
-      showSyncWarning = false
-      updateConnectionStatus(new Date())
-    }
-
-    if (data[SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD] && data[SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD].name != '') {
-      syncWarningThreshold = Number(data[SETTINGS_EVENTS.SYNC_WARNING_THRESHOLD].name)
-      updateConnectionStatus(new Date())
-    }
-  }
-
-}
-simpleSettings.initialize(settingsCallback)
 
 peerSocket.onopen = function() {
   console.log('peersocket open')
