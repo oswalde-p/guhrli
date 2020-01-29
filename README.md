@@ -20,8 +20,8 @@
 1.  Install the app from the [Fitbit Gallery](https://gallery.fitbit.com/details/69cb39c2-2290-49de-b7e2-4223afea053d)
 2.  Select your data source from the app Settings inside the Fitbit app
     1. If using Nightscout, enter your URL in the settings. *Don't* include `/api/v1`
-    2. If using Tomato or xDrip+, see #local-fetch-failing
-3. That's it! You should see readings appear in the corner of your watch. If not, see #troubleshooting
+    2. If using Tomato or xDrip+, see [below](#local-fetch-failing)
+3. That's it! You should see readings appear in the corner of your watch. If not, see [troubleshooting](#troubleshooting)
 
 ## Known Issues
 ### Local Fetch Failing
