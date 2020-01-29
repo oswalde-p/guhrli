@@ -1,5 +1,5 @@
 # guhrli - simple cgm monitor
-
+![guhrli app screenshot on versa](screens/versa/Screenshot%202020-01-26%20at%2018.05.22.png?raw=true "BG in range")
 ## Features
 * Display latest CGM reading from either:
     * Nightscout
