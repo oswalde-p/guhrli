@@ -11,7 +11,7 @@
   "fitbit": {
     "appUUID": "69cb39c2-2290-49de-b7e2-4223afea053d",
     "appType": "clockface",
-    "appDisplayName": "guhrli",
+    "appDisplayName": "guhrli - simple cgm monitor",
     "iconFile": "resources/icon.png",
     "wipeColor": "#ff5722",
     "requestedPermissions": [
@@ -25,7 +25,7 @@
     ],
     "i18n": {
       "en": {
-        "name": "guhrli"
+        "name": "guhrli - simple cgm monitor"
       }
     }
   },
