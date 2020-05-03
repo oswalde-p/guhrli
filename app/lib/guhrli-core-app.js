@@ -1,10 +1,11 @@
 import { peerSocket } from 'messaging'
-import { SGV_AGE_DISPLAY } from '../../guhrli.config.json'
+import { config } from '../../guhrli.config.js'
 
 class Guhrli {
   constructor() {
-    this.reading = null,
+    this.reading = '-',
     this.time = null,
+    this.isStale = false,
     this.alarm = null
     this.error = false
 
@@ -18,7 +19,7 @@ class Guhrli {
 
   formattedAge() {
     const age = Math.round((new Date() - this.time) / (60 * 1000))
-    if (age > SGV_AGE_DISPLAY) {
+    if (age > config.STALE_SGV_AGE) {
       if (age < 60 ) {
         return `${age}m`
       } else {
