@@ -1,5 +1,9 @@
-import { ALARM_TYPES } from '../common/constants'
+import { ALARM_TYPES } from './consts'
 
+export function addSlash(str) {
+  if (str.slice(-1) == '/') return str
+  return `${str}/`
+}
 function isValidUrl(str) {
   if (!str) return false
   const [ protocol, tail ] = str.split('://')
@@ -8,12 +12,6 @@ function isValidUrl(str) {
   if (parts.length < 2) return false // must have at least host + tld
   return true
 }
-
-function addSlash(str) {
-  if (str.slice(-1) == '/') return str
-  return `${str}/`
-}
-
 
 function formatReading(sgvVal, units) {
   if (!units || units != 'mmol') {
@@ -37,7 +35,6 @@ function getAlarmType(sgvVal, alarmRules) {
 }
 
 export {
-  addSlash,
   formatReading,
   getAlarmType,
   isValidUrl

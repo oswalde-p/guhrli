@@ -1,5 +1,3 @@
-import { UNITS } from '../../common/constants'
-
 class sgvServiceBase {
   constructor() {
   }
