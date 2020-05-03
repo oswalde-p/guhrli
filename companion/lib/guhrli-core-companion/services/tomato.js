@@ -1,6 +1,6 @@
 import { sgvReading } from '../classes/sgvReading'
 import { sgvServiceBase } from './sgv-service-base'
-import { UNITS } from '../../common/constants'
+import { UNITS } from '../consts'
 
 const TOMATO_URL = 'http://127.0.0.1:11111'
 

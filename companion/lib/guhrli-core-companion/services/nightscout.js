@@ -1,7 +1,7 @@
 import { sgvReading } from '../classes/sgvReading'
 import { sgvServiceBase } from './sgv-service-base'
 
-import { UNITS } from '../../common/constants'
+import { UNITS } from '../consts'
 
 class NightscoutService extends sgvServiceBase {
   constructor(url) {
