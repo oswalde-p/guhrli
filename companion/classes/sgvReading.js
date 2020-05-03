@@ -10,6 +10,7 @@ class sgvReading {
 
   serialize(units) {
     return {
+      type: 'guhrli',
       reading: formatReading(this.value, units),
       time: this.time,
       alarm: this.alarm

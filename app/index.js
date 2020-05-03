@@ -8,8 +8,7 @@ import { peerSocket } from 'messaging'
 import { formatDate, getTimeStr, round } from '../common/utils'
 import { LOW_BATTERY_LIMIT } from '../common/constants'
 import { Settings } from './settings'
-
-const SGV_AGE_DISPLAY = 5 // after this many minutes, age of reading is displayed
+import { Guhrli } from './lib/guhrli-core-app'
 
 // Update the clock every minute
 clock.granularity = 'minutes'
@@ -25,10 +24,9 @@ const secondTimeText = document.getElementById('stat2')
 const sgvText = document.getElementById('reading')
 const sgvAgeText = document.getElementById('reading-age')
 
-let lastReading = {}
-
 batteryStatusText.text = 'init'
 
+const gurhli = new Guhrli()
 
 function onTick(evt) {
   let now = evt ? evt.date : new Date()
@@ -37,6 +35,7 @@ function onTick(evt) {
   updateSecondTime(now) // weird
   updateBattery()
   updateConnectionStatus(now)
+  updateReading()
   updateReadingAge()
 }
 
@@ -128,24 +127,15 @@ function clearAlert(key) {
   }
 }
 
-peerSocket.onmessage = evt => {
-  const { data } = evt
-  if (data.error) {
-    setAlert({key: 'apiError', msg: data.error, priority: 0})
-    return
-  }
-  clearAlert('apiError')
-  if (data.reading) {
-    lastReading = data
-    updateReading()
-    updateReadingAge()
-    setAlarm()
-  }
+function updateReading() {
+  if (!gurhli) return
+  sgvText.text = gurhli.reading
+  setAlarm()
 }
 
 function setAlarm() {
   // this should be done by adding classes but I can't work out how to do that
-  timeText.style.fill = colorMap[lastReading.alarm] || colorMap.default
+  timeText.style.fill = colorMap[gurhli.alarm] || colorMap.default
 }
 
 const colorMap = {
@@ -156,23 +146,9 @@ const colorMap = {
   URGENT_LOW: '#0000bb'
 }
 
-function updateReading() {
-  if (!lastReading) return
-  sgvText.text = lastReading.reading
-}
-
 function updateReadingAge() {
-  if (!lastReading) return
-  const age = Math.round((new Date() - lastReading.time) / (60 * 1000))
-  if (age > SGV_AGE_DISPLAY) {
-    if (age < 60 ) {
-      sgvAgeText.text = `${age}m`
-    } else {
-      sgvAgeText.text = `${Math.round(age / 60)}h`
-    }
-  } else {
-    sgvAgeText.text = ''
-  }
+  if (!(gurhli && gurhli.time)) return
+  sgvAgeText.text = gurhli.formattedAge()
 }
 
 peerSocket.onopen = function() {
