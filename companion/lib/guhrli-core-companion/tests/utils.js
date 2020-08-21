@@ -1,7 +1,7 @@
 import test from 'ava'
 
-import * as utils from'../companion/utils'
-import * as constants from '../common/constants'
+import * as utils from'../utils'
+import * as constants from '../consts'
 
 test('formatReading with no units formats 105 as "105"', t => {
   const res = utils.formatReading(105)
