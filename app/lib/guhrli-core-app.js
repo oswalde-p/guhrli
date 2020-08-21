@@ -18,6 +18,7 @@ class Guhrli {
   }
 
   formattedAge() {
+    if (!this.time) return
     const age = Math.round((new Date() - this.time) / (60 * 1000))
     if (age > config.STALE_SGV_AGE) {
       if (age < 60 ) {

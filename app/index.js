@@ -36,7 +36,6 @@ function onTick(evt) {
   updateBattery()
   updateConnectionStatus(now)
   updateReading()
-  updateReadingAge()
 }
 
 const settings = new Settings(onTick)
@@ -130,12 +129,9 @@ function clearAlert(key) {
 function updateReading() {
   if (!gurhli) return
   sgvText.text = gurhli.reading
-  setAlarm()
-}
-
-function setAlarm() {
   // this should be done by adding classes but I can't work out how to do that
   timeText.style.fill = colorMap[gurhli.alarm] || colorMap.default
+  sgvAgeText.text = gurhli.formattedAge() || ''
 }
 
 const colorMap = {
@@ -144,11 +140,6 @@ const colorMap = {
   HIGH: '#ff9900',
   LOW: '#1ac6ff',
   URGENT_LOW: '#0000bb'
-}
-
-function updateReadingAge() {
-  if (!(gurhli && gurhli.time)) return
-  sgvAgeText.text = gurhli.formattedAge()
 }
 
 peerSocket.onopen = function() {
