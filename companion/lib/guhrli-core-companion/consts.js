@@ -15,7 +15,8 @@ const FETCH_FREQUENCY_MINS = 1
 const BG_SOURCES = {
   NONE: 0,
   NIGHTSCOUT: 1,
-  TOMATO: 2
+  TOMATO: 2,
+  XDRIP: 3
 }
 
 

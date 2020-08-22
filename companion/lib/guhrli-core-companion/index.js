@@ -6,6 +6,7 @@ import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS, BG_SOURCES } from './consts'
 import { addSlash } from './utils'
 import { NightscoutService } from './services/nightscout'
 import { TomatoService } from './services/tomato'
+import { XdripService } from './services/xdrip'
 
 export class GuhrliCompanion {
   constructor() {
@@ -47,6 +48,7 @@ export class GuhrliCompanion {
   }
 
   updateSgvService(id) {
+    // TODO: rewrite this as a switch
     if (!id || id == BG_SOURCES.NONE) {
       return
     }
@@ -59,6 +61,8 @@ export class GuhrliCompanion {
         return this.sgvService = new NightscoutService(addSlash(url))
       }
       return console.error('Nighscout url not set') // eslint-disable-line no-console
+    } else if (id == BG_SOURCES.XDRIP) {
+      return this.sgvService = new XdripService()
     }
     console.error(`Unknown sgv service id: ${id}`) // eslint-disable-line no-console
   }
@@ -81,6 +85,8 @@ export class GuhrliCompanion {
     if (!this.sgvService) return
     try {
       let reading = await this.sgvService.latestReading()
+      console.log('reading', reading)
+      console.log(JSON.stringify(reading, null, 2))
       if (reading && (!this.latestReading || this.latestReading.time != reading.time)) {
         this.latestReading = reading
         this.sendReading()
@@ -88,6 +94,8 @@ export class GuhrliCompanion {
     } catch (err) {
       if (err.message.startsWith('Fetch Error')) {
         sendError('API error, Check URL')
+      } else {
+        console.error(err)
       }
     }
   }
