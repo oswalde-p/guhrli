@@ -1,5 +1,5 @@
 import { peerSocket } from 'messaging'
-import { config } from '../../guhrli.config.js'
+import { config } from '../../../guhrli.config.js'
 
 class Guhrli {
   constructor() {
