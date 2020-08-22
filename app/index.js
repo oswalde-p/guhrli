@@ -127,7 +127,6 @@ function clearAlert(key) {
 }
 
 function updateReading() {
-  if (!gurhli) return
   sgvText.text = gurhli.reading
   // this should be done by adding classes but I can't work out how to do that
   timeText.style.fill = colorMap[gurhli.alarm] || colorMap.default

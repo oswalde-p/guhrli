@@ -43,7 +43,7 @@ export class GuhrliCompanion {
     if (this.sgvService) this.initializeService()
 
     // try to update reading every minute
-    setInterval(this.fetchReading, 1000 * 60 * FETCH_FREQUENCY_MINS)
+    setInterval(() => this.fetchReading(), 1000 * 60 * FETCH_FREQUENCY_MINS)
   }
 
   updateSgvService(id) {
@@ -81,7 +81,6 @@ export class GuhrliCompanion {
     if (!this.sgvService) return
     try {
       let reading = await this.sgvService.latestReading()
-      console.log({ reading }) // eslint-disable-line no-console
       if (reading && (!this.latestReading || this.latestReading.time != reading.time)) {
         this.latestReading = reading
         this.sendReading()
