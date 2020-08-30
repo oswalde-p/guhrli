@@ -32,7 +32,7 @@
     }
   },
   "scripts": {
-    "build": "fitbit-build",
+    "build": "npm run test && fitbit-build",
     "test": "ava"
   },
   "ava": {
