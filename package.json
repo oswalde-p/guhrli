@@ -6,7 +6,9 @@
     "@fitbit/sdk-cli": "^1.7.2",
     "ava": "^2.4.0",
     "eslint": "^6.5.1",
-    "esm": "^3.2.25"
+    "esm": "^3.2.25",
+    "proxyquire": "^2.1.3",
+    "sinon": "^9.0.3"
   },
   "fitbit": {
     "appUUID": "69cb39c2-2290-49de-b7e2-4223afea053d",
