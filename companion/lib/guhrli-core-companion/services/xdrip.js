@@ -1,5 +1,6 @@
 import { sgvReading } from '../classes/sgvReading'
 import { sgvServiceBase } from './sgv-service-base'
+import { fetchJSON } from '../utils'
 
 const URL_BASE = 'http://127.0.0.1:17580'
 
@@ -11,7 +12,7 @@ class XdripService extends sgvServiceBase {
 
   async initialize() {
     console.log('Initializing xDrip+ service')
-    const { units, alarms }  = await this._queryStatus()
+    const { units, alarms }  = await queryStatus()
     console.log(`Units: ${units}, Alarms: ${alarms}`)
     this.config.alarms = alarms
     return { units, alarms }
@@ -26,34 +27,24 @@ class XdripService extends sgvServiceBase {
     return new sgvReading(sgv, date, this.config.alarms)
   }
 
-  async  _queryStatus() {
-    const { settings } =  await fetchJSON(`${URL_BASE}/status.json`)
-    const { units, thresholds } = settings
-    const alarms = {
-      sgvTargetTop: {
-        enabled: true,
-        threshold: thresholds.bgHigh,
-      },
-      sgvTargetBottom: {
-        enabled: true,
-        threshold: thresholds.bgLow,
-      }
-    }
-    return { units, alarms }
-  }
 }
 
-async function fetchJSON(url) {
-  const res = await fetch(url, {
-    headers: {
-      'Accept': 'application/json',
-      'Cache-control': 'no-cache'
+async function queryStatus() {
+  const { settings } =  await fetchJSON(`${URL_BASE}/status.json`)
+  const { units, thresholds } = settings
+  const alarms = {
+    sgvTargetTop: {
+      enabled: true,
+      threshold: thresholds.bgHigh,
+    },
+    sgvTargetBottom: {
+      enabled: true,
+      threshold: thresholds.bgLow,
     }
-  })
-  if (res.status == '200') return res.json()
-  throw new Error(`Fetch Error \n  url: ${url}\n  Status: ${res.status} ${res.statusText}` )
+  }
+  return { units, alarms }
 }
 
 export {
-    XdripService
+  XdripService
 }

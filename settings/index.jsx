@@ -11,7 +11,7 @@ function settingsComponent() {
             {name:'None'},
             {name:'Nightscout'},
             {name:'Tomato'},
-            {name:'xDrip+ (Android)'}
+            {name:'xDrip+ (Offline support)'}
           ]}
         />
         <TextInput

@@ -34,7 +34,19 @@ function getAlarmType(sgvVal, alarmRules) {
   return
 }
 
+async function fetchJSON(url) {
+  const res = await fetch(url, {
+    headers: {
+      'Accept': 'application/json',
+      'Cache-control': 'no-cache'
+    }
+  })
+  if (res.status == '200') return res.json()
+  throw new Error(`Fetch Error \n  url: ${url}\n  Status: ${res.status} ${res.statusText}` )
+}
+
 export {
+  fetchJSON,
   formatReading,
   getAlarmType,
   isValidUrl
