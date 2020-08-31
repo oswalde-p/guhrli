@@ -1,6 +1,7 @@
 import { sgvReading } from '../classes/sgvReading'
 import { sgvServiceBase } from './sgv-service-base'
 
+import { fetchJSON } from '../utils'
 import { UNITS } from '../consts'
 
 class NightscoutService extends sgvServiceBase {
@@ -15,8 +16,7 @@ class NightscoutService extends sgvServiceBase {
   }
 
   async initialize() {
-    console.log(`Intializing nightscout service. Url: ${this.url}`) // eslint-disable-line no-console
-    const { units, alarms }  = await this._queryStatus()
+    const { units, alarms }  = await queryStatus(this.url)
     // I don't understand why it thinks this is bad in this case, or how to fix it
     this.config.units = unitsMap[units] // eslint-disable-line require-atomic-updates
     this.config.alarms = alarms // eslint-disable-line require-atomic-updates
@@ -29,25 +29,13 @@ class NightscoutService extends sgvServiceBase {
     const { sgv, date } = results[0]
     return new sgvReading(sgv, date, this.config.alarms)
   }
-
-  async  _queryStatus() {
-    const { settings } =  await fetchJSON(`${this.url}api/v1/status.json`)
-    const { units } = settings
-    const alarms = getAlarms(settings)
-    return { units, alarms }
-  }
 }
 
-
-async function fetchJSON(url) {
-  const res = await fetch(url, {
-    headers: {
-      'Accept': 'application/json',
-      'Cache-control': 'no-cache'
-    }
-  })
-  if (res.status == '200') return res.json()
-  throw new Error(`Fetch Error \n  url: ${url}\n  Status: ${res.status} ${res.statusText}` )
+async function queryStatus(url) {
+  const { settings } =  await fetchJSON(`${url}api/v1/status.json`)
+  const { units } = settings
+  const alarms = getAlarms(settings)
+  return { units, alarms }
 }
 
 function getAlarms(settings) {
@@ -57,15 +45,15 @@ function getAlarms(settings) {
       threshold: settings.thresholds.bgHigh,
     },
     sgvTargetTop: {
-      enabled: settings.alarmUrgentHigh,
+      enabled: settings.alarmHigh,
       threshold: settings.thresholds.bgTargetTop,
     },
     sgvTargetBottom: {
-      enabled: settings.alarmUrgentHigh,
+      enabled: settings.alarmLow,
       threshold: settings.thresholds.bgTargetBottom
     },
     sgvLo: {
-      enabled: settings.alarmUrgentHigh,
+      enabled: settings.alarmUrgentLow,
       threshold: settings.thresholds.bgLow
     }
   }
@@ -77,5 +65,6 @@ const unitsMap = {
 }
 
 export {
-  NightscoutService
+  NightscoutService,
+  getAlarms
 }

@@ -10,7 +10,8 @@ function settingsComponent() {
           options={[
             {name:'None'},
             {name:'Nightscout'},
-            {name:'Tomato'}
+            {name:'Tomato'},
+            {name:'xDrip+ (Offline support)'}
           ]}
         />
         <TextInput

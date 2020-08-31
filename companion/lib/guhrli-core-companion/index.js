@@ -6,6 +6,7 @@ import { SETTINGS_EVENTS, FETCH_FREQUENCY_MINS, BG_SOURCES } from './consts'
 import { addSlash } from './utils'
 import { NightscoutService } from './services/nightscout'
 import { TomatoService } from './services/tomato'
+import { XdripService } from './services/xdrip'
 
 export class GuhrliCompanion {
   constructor() {
@@ -47,20 +48,23 @@ export class GuhrliCompanion {
   }
 
   updateSgvService(id) {
-    if (!id || id == BG_SOURCES.NONE) {
-      return
-    }
-    if (id == BG_SOURCES.TOMATO) {
-      return this.sgvService = new TomatoService()
-    } else if (id == BG_SOURCES.NIGHTSCOUT) {
-      const nightscoutSetting = settingsStorage.getItem(SETTINGS_EVENTS.NIGHTSCOUT_URL)
-      if (nightscoutSetting) {
-        const { name: url } = JSON.parse(nightscoutSetting)
-        return this.sgvService = new NightscoutService(addSlash(url))
+    switch (id) {
+      case BG_SOURCES.TOMATO:
+        return this.sgvService = new TomatoService()
+      case BG_SOURCES.NIGHTSCOUT: {
+        const nightscoutSetting = settingsStorage.getItem(SETTINGS_EVENTS.NIGHTSCOUT_URL)
+        if (nightscoutSetting) {
+          const { name: url } = JSON.parse(nightscoutSetting)
+          return this.sgvService = new NightscoutService(addSlash(url))
+        }
+        return console.error('Nighscout url not set') // eslint-disable-line no-console
       }
-      return console.error('Nighscout url not set') // eslint-disable-line no-console
+      case BG_SOURCES.XDRIP:
+        return this.sgvService = new XdripService()
+      default:
+        console.error(`Unknown sgv service id: ${id}`) // eslint-disable-line no-console
+        return
     }
-    console.error(`Unknown sgv service id: ${id}`) // eslint-disable-line no-console
   }
 
   async initializeService() {
@@ -71,7 +75,7 @@ export class GuhrliCompanion {
       if (err.message.startsWith('Fetch Error')) {
         sendError('API error, Check URL')
       } else {
-        console.log('Error initializing service')
+        console.log('Error initializing service') // eslint-disable-line no-console
         console.log(err) // eslint-disable-line no-console
       }
     }
@@ -81,6 +85,7 @@ export class GuhrliCompanion {
     if (!this.sgvService) return
     try {
       let reading = await this.sgvService.latestReading()
+      console.log(JSON.stringify(reading, null, 2)) // eslint-disable-line no-console
       if (reading && (!this.latestReading || this.latestReading.time != reading.time)) {
         this.latestReading = reading
         this.sendReading()
@@ -88,6 +93,8 @@ export class GuhrliCompanion {
     } catch (err) {
       if (err.message.startsWith('Fetch Error')) {
         sendError('API error, Check URL')
+      } else {
+        console.error(err)
       }
     }
   }
