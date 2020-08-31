@@ -7,13 +7,11 @@
 * Display latest CGM reading from either:
     * Nightscout
     * Tomato
-    * xDrip+ (coming soon)
+    * xDrip+ (android only)
 * Clock colour changes with reading
     * In range -> green
-    * High values -> red
-    * Low values -> blue
-    * For Nightscout, thresholds are read from the server
-    * For Tomato, default values are used (setting coming soon)
+    * High values -> orange/red
+    * Low values -> light/dark blue
 * Minimal configuration
     * Units + alarm thresholds are read from source
 * Second time zone
@@ -24,15 +22,21 @@
 1.  Install the app from the [Fitbit Gallery](https://gallery.fitbit.com/details/69cb39c2-2290-49de-b7e2-4223afea053d)
 2.  Select your data source from the app Settings inside the Fitbit app
     1. If using Nightscout, enter your URL in the settings. *Don't* include `/api/v1`
-    2. If using Tomato or xDrip+, see [below](#local-fetch-failing)
 3. That's it! You should see readings appear in the corner of your watch. If not, see [troubleshooting](#troubleshooting)
 
-## Known Issues
+## Differences Between Sources
 
-### Local Fetch Failing
-Since v3.9 of the Fitbit app for Android, insecure requests are blocked, even on localhost. Follow the thread [here](https://community.fitbit.com/t5/SDK-Development/Fetch-API-stops-working-with-latest-Fitbit-PlayStore-App-v3-9-1-released-on/td-p/3883193). Hopefully this gets fixed in future updates, but for now you need to sideload an older version of the app. Google "fitbit android 3.8" ;)
+* **High/low thresholds:** Due to the different levels of detail available in each API, each source has slightly different behavior for
+thresholds. Nightscout provides **4** levels (urgent low/low/high/urgent high) based on the user's settings. xDrip+ provides just 2 (low/high),
+and so only 3 different colours will be used in the watch. Tomato provides no alarm information, so 4 hardcoded default thresholds are used.
+* **Offline mode:** Only xDrip+ supports offline mode, meaning that results will still be updated on the watch when the phone has no internet
+connection. A bluetooth connection between the phone and the watch is always needed.
 
 ## Troubleshooting
+🚧 coming soon 🚧
+
+In the meantime, you can contact me via the [app page]((https://gallery.fitbit.com/details/69cb39c2-2290-49de-b7e2-4223afea053d)) in the Fitbit
+gallery.
 
 ## Development
 
@@ -40,5 +44,12 @@ Since v3.9 of the Fitbit app for Android, insecure requests are blocked, even on
 * run **npm install**
 * make sure watch is connected to the Developer Bridge
 * start fitbit console with **npx fitbit**
-* build: **fitbit$ build**
+* build: **fitbit$ build** (see below about building for production)
 * install: **fitbit$ install**
+
+### Building for Production
+When creating a build for release, all tests need to run and pass. Therefore, this build should only be done using the build script:
+```bash
+    npm run build
+```
+which runs the tests before building the app. The resulting build is placed in the `build/` directory.
