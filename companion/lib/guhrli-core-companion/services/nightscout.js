@@ -16,7 +16,6 @@ class NightscoutService extends sgvServiceBase {
   }
 
   async initialize() {
-    // console.log(`Intializing nightscout service. Url: ${this.url}`) // eslint-disable-line no-console
     const { units, alarms }  = await queryStatus(this.url)
     // I don't understand why it thinks this is bad in this case, or how to fix it
     this.config.units = unitsMap[units] // eslint-disable-line require-atomic-updates
