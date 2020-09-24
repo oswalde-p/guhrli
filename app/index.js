@@ -5,10 +5,11 @@ import { me as device } from 'device'
 import { vibration } from 'haptics'
 import { peerSocket } from 'messaging'
 
+import { initialize } from 'fitbit-guhrli-core/app'
+
 import { formatDate, getTimeStr, round } from '../common/utils'
 import { LOW_BATTERY_LIMIT } from '../common/constants'
 import { Settings } from './settings'
-import { Guhrli } from './lib/guhrli-core-app'
 
 // Update the clock every minute
 clock.granularity = 'minutes'
@@ -26,7 +27,12 @@ const sgvAgeText = document.getElementById('reading-age')
 
 batteryStatusText.text = 'init'
 
-const gurhli = new Guhrli()
+let guhrli
+try {
+  guhrli = initialize()
+} catch(err) {
+  console.error(err)
+}
 
 function onTick(evt) {
   let now = evt ? evt.date : new Date()
@@ -35,7 +41,7 @@ function onTick(evt) {
   updateSecondTime(now) // weird
   updateBattery()
   updateConnectionStatus(now)
-  updateReading()
+  // updateReading()
 }
 
 const settings = new Settings(onTick)
@@ -127,10 +133,10 @@ function clearAlert(key) {
 }
 
 function updateReading() {
-  sgvText.text = gurhli.reading
+  sgvText.text = guhrli.reading
   // this should be done by adding classes but I can't work out how to do that
-  timeText.style.fill = colorMap[gurhli.alarm] || colorMap.default
-  sgvAgeText.text = gurhli.formattedAge() || ''
+  timeText.style.fill = colorMap[guhrli.alarm] || colorMap.default
+  sgvAgeText.text = guhrli.formattedAge() || ''
 }
 
 const colorMap = {

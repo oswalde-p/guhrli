@@ -1,5 +1,5 @@
 import * as simpleSettings from './simple/companion-settings'
-import * as GuhrliCompanion from './lib/guhrli-core-companion'
+import { initialize } from 'fitbit-guhrli-core/companion'
 
 simpleSettings.initialize()
-GuhrliCompanion.initialize()
+initialize()
