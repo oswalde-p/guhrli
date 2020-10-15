@@ -1,5 +1,13 @@
 import * as simpleSettings from './simple/companion-settings'
-import { initialize } from 'fitbit-guhrli-core/companion'
+import { initialize, GuhrliError } from 'fitbit-guhrli-core/companion'
 
 simpleSettings.initialize()
-initialize()
+try {
+  initialize()
+} catch(err) {
+  if (err instanceof GuhrliError) {
+    console.error('Error initializing Guhrli companion')
+    console.error(err)
+  }
+  throw (err)
+}

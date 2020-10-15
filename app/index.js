@@ -27,8 +27,16 @@ const sgvAgeText = document.getElementById('reading-age')
 
 batteryStatusText.text = 'init'
 
-guhrliApp.initialize(peerSocket)
-// peerSocket.onmessage = guhrliApp.onMessage
+try {
+  guhrliApp.initialize(peerSocket)
+} catch(err) {
+  if (err instanceof guhrliApp.GuhrliError) {
+    console.error('Error initializing guhrliApp')
+    console.error(err)
+  } else {
+    throw err
+  }
+}
 
 function onTick(evt) {
   let now = evt ? evt.date : new Date()
@@ -129,10 +137,20 @@ function clearAlert(key) {
 }
 
 function updateReading() {
-  sgvText.text = guhrliApp.getReading()
-  // this should be done by adding classes but I can't work out how to do that
-  timeText.style.fill = colorMap[guhrliApp.getAlarm()] || colorMap.default
-  sgvAgeText.text = guhrliApp.getFormattedAge() || ''
+  try {
+    sgvText.text = guhrliApp.getReading()
+    // this should be done by adding classes but I can't work out how to do that
+    timeText.style.fill = colorMap[guhrliApp.getAlarm()] || colorMap.default
+    sgvAgeText.text = guhrliApp.getFormattedAge() || ''
+
+  } catch (err) {
+    if (err instanceof guhrliApp.GuhrliError) {
+      console.error('Error displaying guhrli reading')
+      console.error(err)
+      return
+    }
+    throw err
+  }
 }
 
 const colorMap = {
