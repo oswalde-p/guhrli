@@ -41,6 +41,6 @@
     ]
   },
   "dependencies": {
-    "fitbit-guhrli-core": "git://github.com/oswalde-p/fitbit-guhrli-core.git"
+    "fitbit-guhrli-core": "^0.0.3"
   }
 }

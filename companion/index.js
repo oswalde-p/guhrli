@@ -42,10 +42,8 @@ function updateGuhrli() {
   const currentSettings = parseSettings()
   if (!currentSettings.source) return
   // now initialize the service
-  console.log(JSON.stringify(currentSettings, null, 2))
   try {
     initialize(currentSettings)
-    // initialize({source: 'NIGHTSCOUT', nightscoutURL: 'https://oswalde-nightscout.herokuapp.com'})
   } catch(err) {
     if (err instanceof GuhrliError) {
       console.error('Error initializing Guhrli companion') // eslint-disable-line no-console
