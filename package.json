@@ -1,6 +1,6 @@
 {
   "name": "guhrli",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "devDependencies": {
     "@fitbit/sdk": "^4.1.0",
     "@fitbit/sdk-cli": "^1.7.2",
