@@ -5,10 +5,11 @@ import { me as device } from 'device'
 import { vibration } from 'haptics'
 import { peerSocket } from 'messaging'
 
+import guhrliApp from 'fitbit-guhrli-core/app'
+
 import { formatDate, getTimeStr, round } from '../common/utils'
 import { LOW_BATTERY_LIMIT } from '../common/constants'
 import { Settings } from './settings'
-import { Guhrli } from './lib/guhrli-core-app'
 
 // Update the clock every minute
 clock.granularity = 'minutes'
@@ -26,7 +27,16 @@ const sgvAgeText = document.getElementById('reading-age')
 
 batteryStatusText.text = 'init'
 
-const gurhli = new Guhrli()
+try {
+  guhrliApp.initialize(peerSocket)
+} catch(err) {
+  if (err instanceof guhrliApp.GuhrliError) {
+    console.error('Error initializing guhrliApp')
+    console.error(err)
+  } else {
+    throw err
+  }
+}
 
 function onTick(evt) {
   let now = evt ? evt.date : new Date()
@@ -127,10 +137,20 @@ function clearAlert(key) {
 }
 
 function updateReading() {
-  sgvText.text = gurhli.reading
-  // this should be done by adding classes but I can't work out how to do that
-  timeText.style.fill = colorMap[gurhli.alarm] || colorMap.default
-  sgvAgeText.text = gurhli.formattedAge() || ''
+  try {
+    sgvText.text = guhrliApp.getReading()
+    // this should be done by adding classes but I can't work out how to do that
+    timeText.style.fill = colorMap[guhrliApp.getAlarm()] || colorMap.default
+    sgvAgeText.text = guhrliApp.getFormattedAge() || ''
+
+  } catch (err) {
+    if (err instanceof guhrliApp.GuhrliError) {
+      console.error('Error displaying guhrli reading')
+      console.error(err)
+      return
+    }
+    throw err
+  }
 }
 
 const colorMap = {

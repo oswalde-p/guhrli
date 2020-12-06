@@ -33,12 +33,14 @@
     }
   },
   "scripts": {
-    "build": "npm run test && fitbit-build",
-    "test": "ava"
+    "build": "fitbit-build"
   },
   "ava": {
     "require": [
       "esm"
     ]
+  },
+  "dependencies": {
+    "fitbit-guhrli-core": "^0.0.3"
   }
 }
