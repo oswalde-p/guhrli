@@ -50,7 +50,6 @@ function onTick(evt) {
 
 const settings = new Settings(onTick)
 clock.ontick = onTick
-// setInterval(updateReading, 500)
 
 function updateConnectionStatus(now){
   let minutesSinceSync = (now - device.lastSyncTime) / (60*1000)
