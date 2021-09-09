@@ -11,6 +11,31 @@
   <svg id="nightscout-info">
     <text id="reading-age" text-length="4"/>
     <text id="reading" text-length="4"/>
+
+    <svg id="trend-arrow-container">
+      <g id="trend-arrow-flat" class="trend-arrow">
+        <use href="#arrow-flat" />
+      </g>
+      <g id="trend-arrow-up" class="trend-arrow">
+        <use href="#arrow-up" />
+      </g>
+      <g id="trend-arrow-up-double" class="trend-arrow">
+        <use href="#arrow-up-double" />
+      </g>
+      <g id="trend-arrow-up-slight" class="trend-arrow">
+        <use href="#arrow-up-slight" />
+      </g>
+      <g id="trend-arrow-down" class="trend-arrow">
+        <use href="#arrow-down" />
+      </g>
+      <g id="trend-arrow-down-double" class="trend-arrow">
+        <use href="#arrow-down-double" />
+      </g>
+      <g id="trend-arrow-down-slight" class="trend-arrow">
+        <use href="#arrow-down-slight" />
+      </g>
+
+    </svg>
   </svg>
 
 </svg>

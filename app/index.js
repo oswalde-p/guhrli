@@ -50,6 +50,7 @@ function onTick(evt) {
 
 const settings = new Settings(onTick)
 clock.ontick = onTick
+// setInterval(updateReading, 500)
 
 function updateConnectionStatus(now){
   let minutesSinceSync = (now - device.lastSyncTime) / (60*1000)
@@ -137,20 +138,14 @@ function clearAlert(key) {
 }
 
 function updateReading() {
-  try {
-    sgvText.text = guhrliApp.getReading()
-    // this should be done by adding classes but I can't work out how to do that
-    timeText.style.fill = colorMap[guhrliApp.getAlarm()] || colorMap.default
-    sgvAgeText.text = guhrliApp.getFormattedAge() || ''
-
-  } catch (err) {
-    if (err instanceof guhrliApp.GuhrliError) {
-      console.error('Error displaying guhrli reading')
-      console.error(err)
-      return
-    }
-    throw err
+  const direction = guhrliApp.getDirection()
+  if (direction) {
+    displayTrendArrow(direction)
   }
+  sgvText.text = guhrliApp.getReading()
+  // this should be done by adding classes but I can't work out how to do that
+  timeText.style.fill = colorMap[guhrliApp.getAlarm()] || colorMap.default
+  sgvAgeText.text = guhrliApp.getFormattedAge() || ''
 }
 
 const colorMap = {
@@ -159,6 +154,35 @@ const colorMap = {
   HIGH: '#ff9900',
   LOW: '#1ac6ff',
   URGENT_LOW: '#0000bb'
+}
+
+const displayTrendArrow = function(direction) {
+  const allTrendArrows = document.getElementsByClassName('trend-arrow')
+  allTrendArrows.forEach(arrow => {
+    arrow.style.display = 'none'
+  })
+  const activeArrow = getActiveArrowElement(direction)
+  activeArrow.style.display = 'inherit'
+
+}
+
+const getActiveArrowElement = function(direction) {
+  switch (direction){
+    case 'SingleUp':
+      return document.getElementById('trend-arrow-up')
+    case 'Flat':
+      return document.getElementById('trend-arrow-flat')
+    case 'DoubleUp':
+      return document.getElementById('trend-arrow-up-double')
+    case 'FortyFiveUp':
+      return document.getElementById('trend-arrow-up-slight')
+    case 'SingleDown':
+      return document.getElementById('trend-arrow-down')
+    case 'DoubleDown':
+      return document.getElementById('trend-arrow-down-double')
+    case 'FortyFiveDown':
+      return document.getElementById('trend-arrow-down-slight')
+  }
 }
 
 peerSocket.onopen = function() {
