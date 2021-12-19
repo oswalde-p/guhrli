@@ -11,6 +11,17 @@
   <svg id="nightscout-info">
     <text id="reading-age" text-length="4"/>
     <text id="reading" text-length="4"/>
+
+    <svg id="trend-arrow-container">
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="52" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="63" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="74" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="85" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="96" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="107" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="118" sweep-angle="7" />
+
+    </svg>
   </svg>
 
 </svg>

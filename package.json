@@ -33,7 +33,8 @@
     }
   },
   "scripts": {
-    "build": "fitbit-build"
+    "build": "fitbit-build",
+    "debug": "fitbit"
   },
   "ava": {
     "require": [
@@ -41,6 +42,6 @@
     ]
   },
   "dependencies": {
-    "fitbit-guhrli-core": "0.0.4"
+    "fitbit-guhrli-core": "0.0.5"
   }
 }

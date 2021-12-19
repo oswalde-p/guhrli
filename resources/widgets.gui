@@ -2,5 +2,62 @@
   <defs>
     <link rel="stylesheet" href="styles.css" />
     <link rel="import" href="/mnt/sysassets/widgets_common.gui" />
+    <symbol id="arrow-flat">
+      <g id="arrow_g">
+        <line x1="16" y1="-4" x2="20" y2="0" fill="white" stroke-width="2" />
+        <line x1="0" y1="0" x2="20" y2="0" fill="white" stroke-width="2" />
+        <line x1="20" y1="0" x2="16" y2="4" fill="white" stroke-width="2" />
+      </g>
+    </symbol>
+    <symbol id="arrow-up">
+      <g id="arrow_g">
+        <line x1="10" y1="-10" x2="10" y2="10" fill="white" stroke-width="2" />
+        <line x1="06" y1="-6" x2="10" y2="-10" fill="white" stroke-width="2" />
+        <line x1="10" y1="-10" x2="14" y2="-6" fill="white" stroke-width="2" />
+      </g>
+    </symbol>
+    <symbol id="arrow-up-double">
+      <g id="arrow_g">
+        <line x1="1" y1="-6" x2="5" y2="-10" fill="white" stroke-width="2" />
+        <line x1="5" y1="-10" x2="5" y2="10" fill="white" stroke-width="2" />
+        <line x1="5" y1="-10" x2="9" y2="-6" fill="white" stroke-width="2" />
+        
+        <line x1="11" y1="-6" x2="15" y2="-10" fill="white" stroke-width="2" />
+        <line x1="15" y1="-10" x2="15" y2="10" fill="white" stroke-width="2" />
+        <line x1="15" y1="-10" x2="19" y2="-6" fill="white" stroke-width="2" />
+      </g>
+    </symbol>
+    <symbol id="arrow-up-slight">
+      <g id="arrow_g">
+        <line x1="12" y1="-8" x2="18" y2="-8" fill="white" stroke-width="2" />
+        <line x1="2" y1="8" x2="18" y2="-8" fill="white" stroke-width="2" />
+        <line x1="18" y1="-8" x2="18" y2="-2" fill="white" stroke-width="2" />
+      </g>
+    </symbol>
+    <symbol id="arrow-down">
+      <g id="arrow_g">
+        <line x1="10" y1="-10" x2="10" y2="10" fill="white" stroke-width="2" />
+        <line x1="06" y1="6" x2="10" y2="10" fill="white" stroke-width="2" />
+        <line x1="10" y1="10" x2="14" y2="6" fill="white" stroke-width="2" />
+      </g>
+    </symbol>
+    <symbol id="arrow-down-double">
+      <g id="arrow_g">
+        <line x1="1" y1="6" x2="5" y2="10" fill="white" stroke-width="2" />
+        <line x1="5" y1="-10" x2="5" y2="10" fill="white" stroke-width="2" />
+        <line x1="5" y1="10" x2="9" y2="6" fill="white" stroke-width="2" />
+        
+        <line x1="11" y1="6" x2="15" y2="10" fill="white" stroke-width="2" />
+        <line x1="15" y1="-10" x2="15" y2="10" fill="white" stroke-width="2" />
+        <line x1="15" y1="10" x2="19" y2="6" fill="white" stroke-width="2" />
+      </g>
+    </symbol>
+    <symbol id="arrow-down-slight">
+      <g id="arrow_g">
+        <line x1="12" y1="8" x2="18" y2="8" fill="white" stroke-width="2" />
+        <line x1="2" y1="-8" x2="18" y2="8" fill="white" stroke-width="2" />
+        <line x1="18" y1="8" x2="18" y2="2" fill="white" stroke-width="2" />
+      </g>
+    </symbol>
   </defs>
 </svg>

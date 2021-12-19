@@ -136,21 +136,26 @@ function clearAlert(key) {
   }
 }
 
-function updateReading() {
-  try {
-    sgvText.text = guhrliApp.getReading()
-    // this should be done by adding classes but I can't work out how to do that
-    timeText.style.fill = colorMap[guhrliApp.getAlarm()] || colorMap.default
-    sgvAgeText.text = guhrliApp.getFormattedAge() || ''
+const directionMap = {
+  'DoubleUp': 0,
+  'SingleUp': 1,
+  'FortyFiveUp': 2,
+  'Flat': 3,
+  'FortyFiveDown': 4,
+  'SingleDown': 5,
+  'DoubleDown': 6
+}
 
-  } catch (err) {
-    if (err instanceof guhrliApp.GuhrliError) {
-      console.error('Error displaying guhrli reading')
-      console.error(err)
-      return
-    }
-    throw err
+function updateReading() {
+  const direction = guhrliApp.getDirection()
+  if (direction) {
+    const value = directionMap[direction]
+    displayTrend(value)
   }
+  sgvText.text = guhrliApp.getReading()
+  // this should be done by adding classes but I can't work out how to do that
+  timeText.style.fill = colorMap[guhrliApp.getAlarm()] || colorMap.default
+  sgvAgeText.text = guhrliApp.getFormattedAge() || ''
 }
 
 const colorMap = {
@@ -159,6 +164,19 @@ const colorMap = {
   HIGH: '#ff9900',
   LOW: '#1ac6ff',
   URGENT_LOW: '#0000bb'
+}
+
+const displayTrend = function(value) {
+  const sections = document.getElementsByClassName('trend-meter-section')
+  let count = 0
+  sections.forEach(section => {
+    if (count < value) {
+      section.style.fill = '#424242'
+    } else {
+      section.style.fill = 'white'
+    }
+    count++
+  })
 }
 
 peerSocket.onopen = function() {

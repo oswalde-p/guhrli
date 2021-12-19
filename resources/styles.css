@@ -49,8 +49,8 @@
 
 #nightscout-info {
   height: 30%;
-  width: 30%;
-  x: 68%;
+  width: 38%;
+  x: 60%;
   y: 73%;
 }
 
@@ -58,7 +58,7 @@
   fill: #d1d1d1;
   font-size: 60;
   text-anchor: end;
-  x: 100%;
+  x: 76%;
 }
 
 #reading-age {
@@ -67,4 +67,11 @@
   text-anchor: end;
   x: 100%;
   y: 22%;
+}
+
+#trend-arrow-container {
+  x: 80%;
+  y: 60%;
+  width: 20%;
+  height: 30%;
 }
