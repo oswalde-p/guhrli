@@ -136,10 +136,21 @@ function clearAlert(key) {
   }
 }
 
+const directionMap = {
+  'DoubleUp': 0,
+  'SingleUp': 1,
+  'FortyFiveUp': 2,
+  'Flat': 3,
+  'FortyFiveDown': 4,
+  'SingleDown': 5,
+  'DoubleDown': 6
+}
+
 function updateReading() {
   const direction = guhrliApp.getDirection()
   if (direction) {
-    displayTrendArrow(direction)
+    const value = directionMap[direction]
+    displayTrend(value)
   }
   sgvText.text = guhrliApp.getReading()
   // this should be done by adding classes but I can't work out how to do that
@@ -155,33 +166,17 @@ const colorMap = {
   URGENT_LOW: '#0000bb'
 }
 
-const displayTrendArrow = function(direction) {
-  const allTrendArrows = document.getElementsByClassName('trend-arrow')
-  allTrendArrows.forEach(arrow => {
-    arrow.style.display = 'none'
+const displayTrend = function(value) {
+  const sections = document.getElementsByClassName('trend-meter-section')
+  let count = 0
+  sections.forEach(section => {
+    if (count < value) {
+      section.style.fill = '#424242'
+    } else {
+      section.style.fill = 'white'
+    }
+    count++
   })
-  const activeArrow = getActiveArrowElement(direction)
-  activeArrow.style.display = 'inherit'
-
-}
-
-const getActiveArrowElement = function(direction) {
-  switch (direction){
-    case 'SingleUp':
-      return document.getElementById('trend-arrow-up')
-    case 'Flat':
-      return document.getElementById('trend-arrow-flat')
-    case 'DoubleUp':
-      return document.getElementById('trend-arrow-up-double')
-    case 'FortyFiveUp':
-      return document.getElementById('trend-arrow-up-slight')
-    case 'SingleDown':
-      return document.getElementById('trend-arrow-down')
-    case 'DoubleDown':
-      return document.getElementById('trend-arrow-down-double')
-    case 'FortyFiveDown':
-      return document.getElementById('trend-arrow-down-slight')
-  }
 }
 
 peerSocket.onopen = function() {

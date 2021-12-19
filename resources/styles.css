@@ -71,11 +71,7 @@
 
 #trend-arrow-container {
   x: 80%;
-  y: 68%;
+  y: 60%;
   width: 20%;
-  height: 20%;
-}
-
-.trend-arrow {
-  display: none;
+  height: 30%;
 }

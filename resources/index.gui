@@ -13,27 +13,13 @@
     <text id="reading" text-length="4"/>
 
     <svg id="trend-arrow-container">
-      <g id="trend-arrow-flat" class="trend-arrow">
-        <use href="#arrow-flat" />
-      </g>
-      <g id="trend-arrow-up" class="trend-arrow">
-        <use href="#arrow-up" />
-      </g>
-      <g id="trend-arrow-up-double" class="trend-arrow">
-        <use href="#arrow-up-double" />
-      </g>
-      <g id="trend-arrow-up-slight" class="trend-arrow">
-        <use href="#arrow-up-slight" />
-      </g>
-      <g id="trend-arrow-down" class="trend-arrow">
-        <use href="#arrow-down" />
-      </g>
-      <g id="trend-arrow-down-double" class="trend-arrow">
-        <use href="#arrow-down-double" />
-      </g>
-      <g id="trend-arrow-down-slight" class="trend-arrow">
-        <use href="#arrow-down-slight" />
-      </g>
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="52" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="63" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="74" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="85" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="96" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="107" sweep-angle="7" />
+      <arc class="trend-meter-section" x="-66" y="-40" width="80" height="80" fill="#424242" arc-width="4" start-angle="118" sweep-angle="7" />
 
     </svg>
   </svg>
