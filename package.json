@@ -4,7 +4,7 @@
   "devDependencies": {
     "@fitbit/sdk": "^4.1.0",
     "@fitbit/sdk-cli": "^1.7.3",
-    "ava": "^2.4.0",
+    "ava": "^5.1.0",
     "eslint": "^6.5.1",
     "esm": "^3.2.25",
     "proxyquire": "^2.1.3",
